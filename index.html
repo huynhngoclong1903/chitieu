@@ -202,6 +202,19 @@
       gap: 12px;
     }
 
+    .quick-entry {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+
     label {
       display: grid;
       gap: 6px;
@@ -494,6 +507,10 @@
         grid-template-columns: 1fr;
       }
 
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+
       .form-actions {
         display: grid;
         grid-template-columns: 1fr 92px 92px;
@@ -607,6 +624,10 @@
       grid-template-columns: 1fr;
     }
 
+    body.mobile-device .quick-actions {
+      grid-template-columns: 1fr;
+    }
+
     body.mobile-device input,
     body.mobile-device select,
     body.mobile-device textarea {
@@ -694,6 +715,14 @@
         <form id="entryForm">
           <input type="hidden" id="editId">
           <input type="hidden" id="type" value="expense">
+          <div class="quick-entry">
+            <label>Nhập nhanh
+              <div class="quick-actions">
+                <input id="quickText" autocomplete="off" placeholder="Bấm micro trên bàn phím và nói: ăn trưa 50 nghìn">
+                <button class="secondary" type="button" id="quickApplyBtn">Điền</button>
+              </div>
+            </label>
+          </div>
           <div class="form-grid">
             <label>Số tiền
               <input id="amount" inputmode="numeric" autocomplete="off" placeholder="Ví dụ: 120000" required>
@@ -761,7 +790,7 @@
   </dialog>
 
   <script>
-    const APP_VERSION = "v1.4.0";
+    const APP_VERSION = "v1.5.0";
     const STORAGE_KEY = "daily-expense-tracker-v1";
     const SETTINGS_KEY = "daily-expense-settings-v1";
     const categories = {
@@ -790,6 +819,8 @@
       category: document.querySelector("#category"),
       method: document.querySelector("#method"),
       note: document.querySelector("#note"),
+      quickText: document.querySelector("#quickText"),
+      quickApplyBtn: document.querySelector("#quickApplyBtn"),
       saveBtn: document.querySelector("#saveBtn"),
       voiceBtn: document.querySelector("#voiceBtn"),
       resetBtn: document.querySelector("#resetBtn"),
@@ -857,6 +888,13 @@
         saveEntry();
       });
 
+      el.quickApplyBtn.addEventListener("click", applyQuickText);
+      el.quickText.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          applyQuickText();
+        }
+      });
       el.voiceBtn.addEventListener("touchstart", startVoiceHold, { passive: false });
       el.voiceBtn.addEventListener("touchend", stopVoiceHold, { passive: false });
       el.voiceBtn.addEventListener("touchcancel", stopVoiceHold, { passive: false });
@@ -914,6 +952,17 @@
       resetForm();
       render();
       showStatus("Đã lưu giao dịch.");
+    }
+
+    function applyQuickText() {
+      const text = el.quickText.value.trim();
+      if (!text) {
+        showStatus("Nhập hoặc đọc một câu giao dịch trước, ví dụ: ăn trưa 50 nghìn.");
+        el.quickText.focus();
+        return;
+      }
+
+      applyVoiceTranscript(text);
     }
 
     async function startVoiceHold(event) {
@@ -1053,6 +1102,9 @@
       el.amount.value = formatPlain(parsed.amount);
       el.category.value = parsed.category;
       el.note.value = transcript;
+      if (el.quickText.value.trim() === transcript) {
+        el.quickText.value = "";
+      }
       showStatus(`Đã nhận: ${typeLabel(parsed.type)} ${money(parsed.amount)} - ${parsed.category}. Kiểm tra lại rồi bấm Lưu.`);
     }
 
@@ -1144,6 +1196,7 @@
     function resetForm() {
       el.entryForm.reset();
       el.editId.value = "";
+      el.quickText.value = "";
       el.type.value = state.activeType;
       el.date.valueAsDate = new Date();
       renderCategoryOptions();
