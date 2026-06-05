@@ -384,6 +384,12 @@
       line-height: 1.45;
     }
 
+    #voiceBtn {
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
     .empty {
       text-align: center;
       color: var(--muted);
@@ -682,7 +688,7 @@
           </div>
           <div class="form-actions">
             <button class="primary" type="submit" id="saveBtn">Lưu giao dịch</button>
-            <button class="secondary" type="button" id="voiceBtn">Nói</button>
+            <button class="secondary" type="button" id="voiceBtn">Giữ nói</button>
             <button class="secondary" type="button" id="resetBtn">Làm mới</button>
           </div>
           <div class="status" id="status"></div>
@@ -736,7 +742,11 @@
     const state = {
       entries: loadEntries(),
       settings: loadSettings(),
-      activeType: "expense"
+      activeType: "expense",
+      voiceRecognition: null,
+      voiceStarting: false,
+      voiceShouldStop: false,
+      voiceGotResult: false
     };
 
     const el = {
@@ -812,7 +822,19 @@
         saveEntry();
       });
 
-      el.voiceBtn.addEventListener("click", startVoiceInput);
+      el.voiceBtn.addEventListener("pointerdown", startVoiceHold);
+      el.voiceBtn.addEventListener("pointerup", stopVoiceHold);
+      el.voiceBtn.addEventListener("pointercancel", stopVoiceHold);
+      el.voiceBtn.addEventListener("pointerleave", event => {
+        if (event.buttons) stopVoiceHold(event);
+      });
+      el.voiceBtn.addEventListener("contextmenu", event => event.preventDefault());
+      el.voiceBtn.addEventListener("keydown", event => {
+        if (event.code === "Space" || event.code === "Enter") startVoiceHold(event);
+      });
+      el.voiceBtn.addEventListener("keyup", event => {
+        if (event.code === "Space" || event.code === "Enter") stopVoiceHold(event);
+      });
       el.resetBtn.addEventListener("click", resetForm);
       el.monthFilter.addEventListener("change", render);
       el.categoryFilter.addEventListener("change", render);
@@ -856,6 +878,24 @@
       showStatus("Đã lưu giao dịch.");
     }
 
+    async function startVoiceHold(event) {
+      event.preventDefault();
+      if (state.voiceRecognition || state.voiceStarting) return;
+
+      state.voiceShouldStop = false;
+      await startVoiceInput();
+
+      if (state.voiceShouldStop) {
+        stopVoiceRecognition();
+      }
+    }
+
+    function stopVoiceHold(event) {
+      event.preventDefault();
+      state.voiceShouldStop = true;
+      stopVoiceRecognition();
+    }
+
     async function startVoiceInput() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
@@ -863,20 +903,28 @@
         return;
       }
 
+      state.voiceStarting = true;
       const hasMicPermission = await requestMicrophonePermission();
-      if (!hasMicPermission) return;
+      state.voiceStarting = false;
+      if (!hasMicPermission) {
+        el.voiceBtn.textContent = "Giữ nói";
+        return;
+      }
 
       const recognition = new SpeechRecognition();
       recognition.lang = "vi-VN";
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
+      recognition.continuous = false;
 
-      el.voiceBtn.textContent = "Đang nghe...";
-      el.voiceBtn.disabled = true;
-      showStatus("Hãy nói giao dịch, ví dụ: ăn trưa 50 nghìn, đổ xăng 100k, lương 15 triệu.");
+      state.voiceRecognition = recognition;
+      state.voiceGotResult = false;
+      el.voiceBtn.textContent = "Thả để tắt";
+      showStatus("Đang nghe. Giữ nút khi nói, thả tay để điền thông tin.");
 
       recognition.onresult = event => {
         const transcript = event.results[0][0].transcript.trim();
+        state.voiceGotResult = true;
         applyVoiceTranscript(transcript);
       };
 
@@ -885,11 +933,34 @@
       };
 
       recognition.onend = () => {
-        el.voiceBtn.textContent = "Nói";
-        el.voiceBtn.disabled = false;
+        if (!state.voiceGotResult) {
+          showStatus("Chưa nhận được nội dung. Hãy giữ nút, nói rõ câu giao dịch, rồi thả tay.");
+        }
+        state.voiceRecognition = null;
+        state.voiceStarting = false;
+        state.voiceShouldStop = false;
+        el.voiceBtn.textContent = "Giữ nói";
       };
 
-      recognition.start();
+      try {
+        recognition.start();
+      } catch {
+        state.voiceRecognition = null;
+        state.voiceStarting = false;
+        el.voiceBtn.textContent = "Giữ nói";
+        showStatus("Không bắt đầu nghe được. Hãy thử bấm giữ lại.");
+      }
+    }
+
+    function stopVoiceRecognition() {
+      if (!state.voiceRecognition) return;
+
+      try {
+        state.voiceRecognition.stop();
+      } catch {
+        state.voiceRecognition = null;
+        el.voiceBtn.textContent = "Giữ nói";
+      }
     }
 
     async function requestMicrophonePermission() {
