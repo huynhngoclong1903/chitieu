@@ -1,1464 +1,322 @@
 <!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#1f6f5b">
-  <title>Sổ chi tiêu hằng ngày</title>
-  <style>
-    :root {
-      --bg: #f5f7f4;
-      --panel: #ffffff;
-      --ink: #1d2422;
-      --muted: #66736f;
-      --line: #dce4df;
-      --brand: #1f6f5b;
-      --brand-2: #e8b84c;
-      --danger: #b84a4a;
-      --ok: #287a4f;
-      --shadow: 0 10px 30px rgba(31, 57, 49, 0.12);
-      color-scheme: light;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      min-height: 100vh;
-    }
-
-    button, input, select, textarea {
-      font: inherit;
-    }
-
-    button {
-      border: 0;
-      border-radius: 8px;
-      cursor: pointer;
-      min-height: 42px;
-    }
-
-    .app {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 18px 16px 84px;
-    }
-
-    header {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 14px;
-      align-items: center;
-      padding: 8px 0 18px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(24px, 4vw, 38px);
-      line-height: 1.08;
-      letter-spacing: 0;
-    }
-
-    .subhead {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .version-badge {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      margin-top: 8px;
-      padding: 2px 9px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: #eef5f2;
-      color: var(--brand);
-      font-size: 12px;
-      font-weight: 700;
-      width: fit-content;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .icon-button, .primary, .secondary, .danger {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 0 14px;
-      white-space: nowrap;
-    }
-
-    .icon-button {
-      width: 44px;
-      padding: 0;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      box-shadow: 0 2px 10px rgba(20, 32, 29, 0.05);
-    }
-
-    .primary {
-      background: var(--brand);
-      color: #fff;
-    }
-
-    .secondary {
-      background: var(--panel);
-      color: var(--ink);
-      border: 1px solid var(--line);
-    }
-
-    .danger {
-      background: #fff2f2;
-      color: var(--danger);
-      border: 1px solid #f1cccc;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
-      gap: 16px;
-      align-items: start;
-    }
-
-    .panel, .transaction-card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-    }
-
-    .panel {
-      padding: 16px;
-    }
-
-    .summary {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .metric {
-      background: #fbfcfb;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-      min-width: 0;
-    }
-
-    .metric span {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 7px;
-    }
-
-    .metric strong {
-      display: block;
-      font-size: clamp(18px, 3vw, 26px);
-      line-height: 1.1;
-      overflow-wrap: anywhere;
-    }
-
-    .metric.expense strong { color: var(--danger); }
-    .metric.balance strong { color: var(--ok); }
-
-    .tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      background: #edf2ef;
-      padding: 4px;
-      border-radius: 8px;
-      gap: 4px;
-      margin-bottom: 14px;
-    }
-
-    .tabs button {
-      background: transparent;
-      color: var(--muted);
-      min-height: 38px;
-    }
-
-    .tabs button.active {
-      background: var(--panel);
-      color: var(--ink);
-      box-shadow: 0 1px 6px rgba(29, 36, 34, 0.08);
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .quick-entry {
-      display: grid;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .quick-actions {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-      align-items: end;
-    }
-
-    label {
-      display: grid;
-      gap: 6px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 11px 12px;
-      background: #fff;
-      color: var(--ink);
-      min-height: 42px;
-    }
-
-    textarea {
-      min-height: 82px;
-      resize: vertical;
-    }
-
-    .full {
-      grid-column: 1 / -1;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 14px;
-      flex-wrap: wrap;
-    }
-
-    .filters {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .transaction-list {
-      display: grid;
-      gap: 10px;
-      max-height: 66vh;
-      overflow: auto;
-      padding-right: 2px;
-    }
-
-    .transaction-card {
-      padding: 12px;
-      box-shadow: 0 4px 14px rgba(31, 57, 49, 0.08);
-    }
-
-    .transaction-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: start;
-    }
-
-    .transaction-title {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      min-width: 0;
-      flex-wrap: wrap;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      border-radius: 999px;
-      padding: 2px 9px;
-      background: #eef5f2;
-      color: var(--brand);
-      font-size: 12px;
-    }
-
-    .amount {
-      font-weight: 800;
-      color: var(--danger);
-      white-space: nowrap;
-    }
-
-    .amount.income {
-      color: var(--ok);
-    }
-
-    .meta {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 7px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .note {
-      color: #3d4845;
-      font-size: 13px;
-      margin-top: 8px;
-      line-height: 1.45;
-    }
-
-    .card-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .mini {
-      min-height: 34px;
-      padding: 0 10px;
-      font-size: 13px;
-    }
-
-    .chart {
-      display: grid;
-      gap: 9px;
-      margin-top: 12px;
-    }
-
-    .bar-row {
-      display: grid;
-      grid-template-columns: 112px 1fr 96px;
-      gap: 8px;
-      align-items: center;
-      font-size: 13px;
-    }
-
-    .bar-label {
-      color: var(--muted);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .bar-track {
-      height: 10px;
-      background: #edf2ef;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .bar-fill {
-      height: 100%;
-      background: var(--brand-2);
-      width: 0;
-    }
-
-    .bar-value {
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-      font-size: 12px;
-    }
-
-    dialog {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      max-width: 620px;
-      width: calc(100% - 28px);
-      padding: 0;
-      box-shadow: var(--shadow);
-    }
-
-    dialog::backdrop {
-      background: rgba(23, 32, 29, 0.42);
-    }
-
-    .dialog-body {
-      padding: 16px;
-    }
-
-    .dialog-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      border-bottom: 1px solid var(--line);
-      padding: 12px 16px;
-    }
-
-    .dialog-head h2 {
-      font-size: 18px;
-      margin: 0;
-    }
-
-    .status {
-      margin-top: 12px;
-      font-size: 13px;
-      color: var(--muted);
-      min-height: 20px;
-      line-height: 1.45;
-    }
-
-    #voiceBtn {
-      touch-action: none;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-touch-callout: none;
-    }
-
-    .voice-button {
-      font-size: 20px;
-      line-height: 1;
-    }
-
-    .empty {
-      text-align: center;
-      color: var(--muted);
-      padding: 28px 8px;
-      border: 1px dashed var(--line);
-      border-radius: 8px;
-      background: #fbfcfb;
-    }
-
-    @media (max-width: 820px) {
-      .app {
-        padding: 10px 10px 88px;
-      }
-
-      header, .grid {
-        grid-template-columns: 1fr;
-      }
-
-      header {
-        gap: 10px;
-        padding-bottom: 10px;
-      }
-
-      h1 {
-        font-size: 24px;
-      }
-
-      .subhead {
-        display: none;
-      }
-
-      .version-badge {
-        margin-top: 6px;
-      }
-
-      .header-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr auto;
-        justify-content: stretch;
-      }
-
-      .header-actions .secondary {
-        padding: 0 10px;
-      }
-
-      .summary {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(132px, 1fr));
-        gap: 8px;
-        overflow-x: auto;
-        margin: 2px -10px 12px;
-        padding: 0 10px 4px;
-        scroll-snap-type: x mandatory;
-      }
-
-      .metric {
-        padding: 10px;
-        scroll-snap-align: start;
-      }
-
-      .metric strong {
-        font-size: 18px;
-      }
-
-      .panel {
-        padding: 12px;
-        box-shadow: 0 4px 18px rgba(31, 57, 49, 0.08);
-      }
-
-      .tabs {
-        position: sticky;
-        top: 0;
-        z-index: 3;
-      }
-
-      input, select, textarea {
-        font-size: 16px;
-      }
-
-      .form-grid, .filters {
-        grid-template-columns: 1fr;
-      }
-
-      .quick-actions {
-        grid-template-columns: 1fr;
-      }
-
-      .form-actions {
-        display: grid;
-        grid-template-columns: 1fr 92px 92px;
-        gap: 8px;
-      }
-
-      .form-actions button {
-        padding: 0 8px;
-      }
-
-      .transaction-list {
-        max-height: none;
-      }
-
-      .transaction-card {
-        padding: 10px;
-      }
-
-      .transaction-row {
-        grid-template-columns: 1fr;
-        gap: 6px;
-      }
-
-      .amount {
-        justify-self: start;
-        font-size: 18px;
-      }
-
-      .card-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .bar-row {
-        grid-template-columns: 92px 1fr;
-      }
-
-      .bar-value {
-        grid-column: 2;
-        text-align: left;
-      }
-    }
-
-    @media (max-width: 380px) {
-      .header-actions {
-        grid-template-columns: 1fr 1fr 42px;
-      }
-
-      .form-actions {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    body.mobile-device .app {
-      max-width: none;
-      padding: 10px 10px 88px;
-    }
-
-    body.mobile-device header,
-    body.mobile-device .grid {
-      grid-template-columns: 1fr;
-    }
-
-    body.mobile-device header {
-      gap: 10px;
-      padding-bottom: 10px;
-    }
-
-    body.mobile-device h1 {
-      font-size: 24px;
-    }
-
-    body.mobile-device .subhead {
-      display: none;
-    }
-
-    body.mobile-device .version-badge {
-      margin-top: 6px;
-    }
-
-    body.mobile-device .header-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      justify-content: stretch;
-    }
-
-    body.mobile-device .summary {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(132px, 1fr));
-      gap: 8px;
-      overflow-x: auto;
-      margin: 2px -10px 12px;
-      padding: 0 10px 4px;
-    }
-
-    body.mobile-device .metric {
-      padding: 10px;
-    }
-
-    body.mobile-device .metric strong {
-      font-size: 18px;
-    }
-
-    body.mobile-device .panel {
-      padding: 12px;
-      box-shadow: 0 4px 18px rgba(31, 57, 49, 0.08);
-    }
-
-    body.mobile-device .form-grid,
-    body.mobile-device .filters {
-      grid-template-columns: 1fr;
-    }
-
-    body.mobile-device .quick-actions {
-      grid-template-columns: 1fr;
-    }
-
-    body.mobile-device input,
-    body.mobile-device select,
-    body.mobile-device textarea {
-      font-size: 16px;
-    }
-
-    body.mobile-device .form-actions {
-      display: grid;
-      grid-template-columns: 1fr 92px 92px;
-      gap: 8px;
-    }
-
-    body.mobile-device .transaction-list {
-      max-height: none;
-    }
-
-    body.mobile-device .transaction-row {
-      grid-template-columns: 1fr;
-      gap: 6px;
-    }
-
-    body.mobile-device .amount {
-      justify-self: start;
-      font-size: 18px;
-    }
-
-    body.mobile-device .card-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-
-    body.mobile-device .bar-row {
-      grid-template-columns: 92px 1fr;
-    }
-
-    body.mobile-device .bar-value {
-      grid-column: 2;
-      text-align: left;
-    }
-
-    body.mobile-device.compact-phone .header-actions,
-    body.mobile-device.compact-phone .form-actions {
-      grid-template-columns: 1fr;
-    }
-  </style>
-</head>
-<body>
-  <main class="app">
-    <header>
-      <div>
-        <h1>Sổ chi tiêu hằng ngày</h1>
-        <p class="subhead">Ghi nhanh, xem tỷ trọng theo nhóm, lưu cục bộ và đồng bộ Google Sheets.</p>
-        <span class="version-badge" id="versionBadge"></span>
-      </div>
-      <div class="header-actions">
-        <button class="secondary" id="syncBtn" type="button">Đồng bộ</button>
-        <button class="secondary" id="exportBtn" type="button">CSV</button>
-        <button class="icon-button" id="settingsBtn" type="button" aria-label="Cài đặt" title="Cài đặt">⚙</button>
-      </div>
-    </header>
-
-    <section class="summary" aria-label="Tổng quan">
-      <div class="metric expense">
-        <span>Chi tháng này</span>
-        <strong id="monthExpense">0 đ</strong>
-      </div>
-      <div class="metric">
-        <span>Thu tháng này</span>
-        <strong id="monthIncome">0 đ</strong>
-      </div>
-      <div class="metric balance">
-        <span>Còn lại</span>
-        <strong id="monthBalance">0 đ</strong>
-      </div>
-    </section>
-
-    <div class="grid">
-      <section class="panel" aria-label="Nhập giao dịch">
-        <div class="tabs" role="tablist">
-          <button type="button" class="active" data-type="expense">Chi</button>
-          <button type="button" data-type="income">Thu</button>
-          <button type="button" data-type="saving">Tiết kiệm</button>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MetaverseNexus - NFT Frontier</title>
+    <meta
+      name="description"
+      content="A premium NFT gallery landing page inspired by the MetaverseNexus design."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar" aria-label="Main navigation">
+        <a class="brand-pill" href="#home">Platform +</a>
+        <nav class="main-nav" aria-label="Primary">
+          <a href="#features">Features</a>
+          <a href="#about">About</a>
+          <a href="#faq">FAQs</a>
+        </nav>
+        <a class="wordmark" href="#home">Metaverse<span>Nexus</span></a>
+        <div class="top-actions">
+          <button class="tiny-select" type="button">EN</button>
+          <button class="account-button" type="button" aria-label="Open account"></button>
+          <a class="contact-chip" href="#contact">Contact Us</a>
         </div>
+      </header>
 
-        <form id="entryForm">
-          <input type="hidden" id="editId">
-          <input type="hidden" id="type" value="expense">
-          <div class="quick-entry">
-            <label>Nhập nhanh
-              <div class="quick-actions">
-                <input id="quickText" autocomplete="off" placeholder="Bấm micro trên bàn phím và nói: ăn trưa 50 nghìn">
-                <button class="secondary" type="button" id="quickApplyBtn">Điền</button>
+      <main id="home">
+        <section class="hero-section" aria-labelledby="hero-title">
+          <div class="hero-copy hero-copy-left">
+            <p>Expanding marketplace for premium NFT enthusiasts</p>
+          </div>
+          <div class="hero-copy hero-copy-right">
+            <strong>3000+</strong>
+            <span>unique digital collectibles available</span>
+            <div class="hero-tags" aria-label="Gallery categories">
+              <a href="#gallery">Chain Gallery</a>
+              <a href="#gallery">Art Universe</a>
+              <a href="#gallery">Rare Haven</a>
+            </div>
+          </div>
+
+          <div class="hero-art" aria-hidden="true">
+            <img src="./assets/hero-character.png" alt="" />
+          </div>
+          <div class="hero-title-wrap">
+            <h1 id="hero-title">NFT FRONTIER</h1>
+            <span class="outline-title">METAVERSE</span>
+          </div>
+
+          <div class="ticker ticker-a" aria-hidden="true">
+            <div class="ticker-track">
+              <div class="ticker-group">
+                <span>NFTs Gallery</span><span>NFTs Gallery</span><span>NFTs Gallery</span>
+                <span>NFTs Gallery</span><span>NFTs Gallery</span><span>NFTs Gallery</span>
+                <span>NFTs Gallery</span><span>NFTs Gallery</span><span>NFTs Gallery</span>
               </div>
-            </label>
+              <div class="ticker-group">
+                <span>NFTs Gallery</span><span>NFTs Gallery</span><span>NFTs Gallery</span>
+                <span>NFTs Gallery</span><span>NFTs Gallery</span><span>NFTs Gallery</span>
+                <span>NFTs Gallery</span><span>NFTs Gallery</span><span>NFTs Gallery</span>
+              </div>
+            </div>
           </div>
-          <div class="form-grid">
-            <label>Số tiền
-              <input id="amount" inputmode="numeric" autocomplete="off" placeholder="Ví dụ: 120000" required>
-            </label>
-            <label>Ngày
-              <input id="date" type="date" required>
-            </label>
-            <label>Danh mục
-              <select id="category"></select>
-            </label>
-            <label>Thanh toán
-              <select id="method">
-                <option>Tiền mặt</option>
-                <option>Chuyển khoản</option>
-                <option>Thẻ tín dụng</option>
-                <option>Ví điện tử</option>
-              </select>
-            </label>
-            <label class="full">Ghi chú
-              <textarea id="note" placeholder="Ví dụ: ăn trưa, cà phê, taxi..."></textarea>
-            </label>
+          <div class="ticker ticker-b" aria-hidden="true">
+            <div class="ticker-track reverse">
+              <div class="ticker-group">
+                <span>NFTs Gallery</span><span>NFTs Gallery</span><span>NFTs Gallery</span>
+                <span>NFTs Gallery</span><span>NFTs Gallery</span><span>NFTs Gallery</span>
+                <span>NFTs Gallery</span><span>NFTs Gallery</span><span>NFTs Gallery</span>
+              </div>
+              <div class="ticker-group">
+                <span>NFTs Gallery</span><span>NFTs Gallery</span><span>NFTs Gallery</span>
+                <span>NFTs Gallery</span><span>NFTs Gallery</span><span>NFTs Gallery</span>
+                <span>NFTs Gallery</span><span>NFTs Gallery</span><span>NFTs Gallery</span>
+              </div>
+            </div>
           </div>
-          <div class="form-actions">
-            <button class="primary" type="submit" id="saveBtn">Lưu giao dịch</button>
-            <button class="secondary voice-button" type="button" id="voiceBtn" aria-label="Giữ để nói" title="Giữ để nói">🎙</button>
-            <button class="secondary" type="button" id="resetBtn">Làm mới</button>
+        </section>
+
+        <section class="section collectible-section" id="features" aria-labelledby="collectible-title">
+          <div class="section-heading split-heading">
+            <h2 id="collectible-title">Unlock Digital Wonders In the <em>Collectible Hub</em></h2>
+            <div class="dot-pager" aria-label="Slide controls">
+              <button type="button" aria-label="Previous featured collectible"></button>
+              <button class="active" type="button" aria-label="Next featured collectible"></button>
+            </div>
           </div>
-          <div class="status" id="status"></div>
-        </form>
-      </section>
 
-      <section class="panel" aria-label="Danh sách giao dịch">
-        <div class="filters">
-          <label>Tháng
-            <input id="monthFilter" type="month">
-          </label>
-          <label>Nhóm
-            <select id="categoryFilter">
-              <option value="">Tất cả</option>
-            </select>
-          </label>
-        </div>
-        <div class="chart" id="chart"></div>
-        <h2 style="font-size:18px;margin:18px 0 10px;">Giao dịch</h2>
-        <div class="transaction-list" id="transactionList"></div>
-      </section>
-    </div>
-  </main>
+          <div class="collectible-grid">
+            <article class="portrait-card small-card">
+              <img src="./assets/nft-frontier-art.png" alt="Glossy red android NFT portrait" />
+            </article>
+            <article class="portrait-card feature-card">
+              <span class="price">$ 5.21 ETH</span>
+              <img src="./assets/nft-frontier-art.png" alt="Ethereal Vision Series NFT artwork" />
+              <div class="card-glass">
+                <strong>Ethereal Vision Series</strong>
+                <span>5.2 ETH</span>
+                <button type="button" aria-label="View Ethereal Vision Series">+</button>
+              </div>
+            </article>
+            <article class="portrait-card small-card right-crop">
+              <img src="./assets/nft-frontier-art.png" alt="Molten chrome profile NFT portrait" />
+            </article>
+          </div>
+        </section>
 
-  <dialog id="settingsDialog">
-    <div class="dialog-head">
-      <h2>Cài đặt Google Sheets</h2>
-      <button class="icon-button" id="closeSettings" type="button" aria-label="Đóng" title="Đóng">×</button>
-    </div>
-    <div class="dialog-body">
-      <label>Google Apps Script Web App URL
-        <input id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
-      </label>
-      <div class="form-actions">
-        <button class="primary" id="saveSettings" type="button">Lưu cài đặt</button>
-        <button class="secondary" id="testSync" type="button">Thử đồng bộ</button>
-      </div>
-      <p class="status">Nếu app được mở từ Google Apps Script, bạn không cần nhập URL. Nếu mở file HTML bên ngoài, hãy nhập Web App URL để đồng bộ.</p>
-    </div>
-  </dialog>
+        <section class="section gallery-section" id="gallery" aria-labelledby="gallery-title">
+          <div class="section-heading gallery-heading">
+            <h2 id="gallery-title">Explore Our Gallery</h2>
+            <span>+50K</span>
+            <div class="micro-arrows" aria-hidden="true">
+              <span></span><span></span>
+            </div>
+          </div>
 
-  <script>
-    const APP_VERSION = "v1.5.0";
-    const STORAGE_KEY = "daily-expense-tracker-v1";
-    const SETTINGS_KEY = "daily-expense-settings-v1";
-    const categories = {
-      expense: ["Ăn uống", "Đi lại", "Nhà cửa", "Hóa đơn", "Mua sắm", "Sức khỏe", "Giải trí", "Gia đình", "Học tập", "Khác"],
-      income: ["Lương", "Thưởng", "Kinh doanh", "Đầu tư", "Quà tặng", "Khác"],
-      saving: ["Quỹ khẩn cấp", "Đầu tư", "Mục tiêu lớn", "Trả nợ", "Khác"]
-    };
+          <div class="gallery-grid">
+            <article class="gallery-card gallery-card-wide">
+              <img src="./assets/nft-frontier-art.png" alt="Timeless Aether Creations artwork" />
+              <div class="gallery-card-copy">
+                <h3>Timeless Aether Creations</h3>
+                <p>A fusion of futuristic artistry and blockchain technology, designed to transform how we experience digital ownership.</p>
+                <a href="#feature-panel">Explore Individual NFTs</a>
+              </div>
+            </article>
+            <article class="gallery-card gallery-card-solid">
+              <span class="tag">Summing Collection</span>
+              <img src="./assets/nft-frontier-art.png" alt="Surreal Pixel Dimensions artwork" />
+              <div class="gallery-card-copy">
+                <h3>Surreal Pixel Dimensions</h3>
+                <p>See how immersive pixel art and liquid chrome aesthetics evolve inside the next gallery wave.</p>
+              </div>
+              <button type="button">Gallery</button>
+            </article>
+          </div>
+        </section>
 
-    const state = {
-      entries: loadEntries(),
-      settings: loadSettings(),
-      activeType: "expense",
-      voiceRecognition: null,
-      voiceStarting: false,
-      voiceShouldStop: false,
-      voiceGotResult: false,
-      lastTouchAt: 0
-    };
+        <section class="section innovation-section" id="about" aria-labelledby="innovation-title">
+          <div class="innovation-top">
+            <div>
+              <h2 id="innovation-title">Unleashing <em>Innovation</em> in the <strong>NFT Sphere</strong> Together</h2>
+              <div class="connect-line">
+                <span>Metaverse Portal</span>
+                <b>Connect Events</b>
+                <i aria-hidden="true"></i>
+                <a href="#gallery">Explore Gallery</a>
+              </div>
+            </div>
+            <p>
+              NFT's Gallery Portal. This curated showcase is where art meets blockchain and collectors discover new stories.
+            </p>
+          </div>
 
-    const el = {
-      entryForm: document.querySelector("#entryForm"),
-      editId: document.querySelector("#editId"),
-      type: document.querySelector("#type"),
-      amount: document.querySelector("#amount"),
-      date: document.querySelector("#date"),
-      category: document.querySelector("#category"),
-      method: document.querySelector("#method"),
-      note: document.querySelector("#note"),
-      quickText: document.querySelector("#quickText"),
-      quickApplyBtn: document.querySelector("#quickApplyBtn"),
-      saveBtn: document.querySelector("#saveBtn"),
-      voiceBtn: document.querySelector("#voiceBtn"),
-      resetBtn: document.querySelector("#resetBtn"),
-      status: document.querySelector("#status"),
-      versionBadge: document.querySelector("#versionBadge"),
-      monthFilter: document.querySelector("#monthFilter"),
-      categoryFilter: document.querySelector("#categoryFilter"),
-      transactionList: document.querySelector("#transactionList"),
-      chart: document.querySelector("#chart"),
-      monthExpense: document.querySelector("#monthExpense"),
-      monthIncome: document.querySelector("#monthIncome"),
-      monthBalance: document.querySelector("#monthBalance"),
-      settingsDialog: document.querySelector("#settingsDialog"),
-      settingsBtn: document.querySelector("#settingsBtn"),
-      closeSettings: document.querySelector("#closeSettings"),
-      scriptUrl: document.querySelector("#scriptUrl"),
-      saveSettings: document.querySelector("#saveSettings"),
-      testSync: document.querySelector("#testSync"),
-      syncBtn: document.querySelector("#syncBtn"),
-      exportBtn: document.querySelector("#exportBtn")
-    };
-
-    applyDeviceClass();
-    init();
-
-    function applyDeviceClass() {
-      const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || screen.width <= 700;
-      if (!isMobile) return;
-
-      document.body.classList.add("mobile-device");
-      if (screen.width <= 390) {
-        document.body.classList.add("compact-phone");
-      }
-    }
-
-    function init() {
-      document.title = `Sổ chi tiêu hằng ngày ${APP_VERSION}`;
-      el.versionBadge.textContent = APP_VERSION;
-      const today = new Date();
-      el.date.valueAsDate = today;
-      el.monthFilter.value = today.toISOString().slice(0, 7);
-      el.scriptUrl.value = state.settings.scriptUrl || "";
-      if (isAppsScriptHost()) {
-        el.settingsBtn.style.display = "none";
-      }
-      renderCategoryOptions();
-      renderCategoryFilter();
-      bindEvents();
-      render();
-    }
-
-    function bindEvents() {
-      document.querySelectorAll(".tabs button").forEach(button => {
-        button.addEventListener("click", () => {
-          document.querySelectorAll(".tabs button").forEach(item => item.classList.remove("active"));
-          button.classList.add("active");
-          state.activeType = button.dataset.type;
-          el.type.value = state.activeType;
-          renderCategoryOptions();
-        });
-      });
-
-      el.entryForm.addEventListener("submit", event => {
-        event.preventDefault();
-        saveEntry();
-      });
-
-      el.quickApplyBtn.addEventListener("click", applyQuickText);
-      el.quickText.addEventListener("keydown", event => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          applyQuickText();
-        }
-      });
-      el.voiceBtn.addEventListener("touchstart", startVoiceHold, { passive: false });
-      el.voiceBtn.addEventListener("touchend", stopVoiceHold, { passive: false });
-      el.voiceBtn.addEventListener("touchcancel", stopVoiceHold, { passive: false });
-      el.voiceBtn.addEventListener("pointerdown", startVoiceHold);
-      el.voiceBtn.addEventListener("pointerup", stopVoiceHold);
-      el.voiceBtn.addEventListener("pointercancel", stopVoiceHold);
-      el.voiceBtn.addEventListener("pointerleave", event => {
-        if (event.buttons) stopVoiceHold(event);
-      });
-      el.voiceBtn.addEventListener("contextmenu", event => event.preventDefault());
-      el.voiceBtn.addEventListener("keydown", event => {
-        if (event.code === "Space" || event.code === "Enter") startVoiceHold(event);
-      });
-      el.voiceBtn.addEventListener("keyup", event => {
-        if (event.code === "Space" || event.code === "Enter") stopVoiceHold(event);
-      });
-      el.resetBtn.addEventListener("click", resetForm);
-      el.monthFilter.addEventListener("change", render);
-      el.categoryFilter.addEventListener("change", render);
-      el.settingsBtn.addEventListener("click", () => el.settingsDialog.showModal());
-      el.closeSettings.addEventListener("click", () => el.settingsDialog.close());
-      el.saveSettings.addEventListener("click", saveSettings);
-      el.testSync.addEventListener("click", syncEntries);
-      el.syncBtn.addEventListener("click", syncEntries);
-      el.exportBtn.addEventListener("click", exportCsv);
-    }
-
-    function saveEntry() {
-      const amount = parseAmount(el.amount.value);
-      if (!Number.isFinite(amount) || amount <= 0) {
-        showStatus("Số tiền cần lớn hơn 0.");
-        return;
-      }
-
-      const entry = {
-        id: el.editId.value || makeId(),
-        type: el.type.value,
-        amount,
-        date: el.date.value,
-        category: el.category.value,
-        method: el.method.value,
-        note: el.note.value.trim(),
-        createdAt: new Date().toISOString(),
-        synced: false
-      };
-
-      const existingIndex = state.entries.findIndex(item => item.id === entry.id);
-      if (existingIndex >= 0) {
-        state.entries[existingIndex] = { ...state.entries[existingIndex], ...entry };
-      } else {
-        state.entries.unshift(entry);
-      }
-
-      persistEntries();
-      resetForm();
-      render();
-      showStatus("Đã lưu giao dịch.");
-    }
-
-    function applyQuickText() {
-      const text = el.quickText.value.trim();
-      if (!text) {
-        showStatus("Nhập hoặc đọc một câu giao dịch trước, ví dụ: ăn trưa 50 nghìn.");
-        el.quickText.focus();
-        return;
-      }
-
-      applyVoiceTranscript(text);
-    }
-
-    async function startVoiceHold(event) {
-      event.preventDefault();
-      if (event.type === "touchstart") state.lastTouchAt = Date.now();
-      if (event.type === "pointerdown" && Date.now() - state.lastTouchAt < 700) return;
-      if (state.voiceRecognition || state.voiceStarting) return;
-
-      state.voiceShouldStop = false;
-      await startVoiceInput();
-
-      if (state.voiceShouldStop) {
-        stopVoiceRecognition();
-      }
-    }
-
-    function stopVoiceHold(event) {
-      event.preventDefault();
-      if (event.type === "touchend" || event.type === "touchcancel") state.lastTouchAt = Date.now();
-      if ((event.type === "pointerup" || event.type === "pointercancel" || event.type === "pointerleave") && Date.now() - state.lastTouchAt < 700) return;
-      state.voiceShouldStop = true;
-      stopVoiceRecognition();
-    }
-
-    async function startVoiceInput() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        showStatus("Trình duyệt này chưa hỗ trợ nhập giọng nói. Hãy thử Chrome trên Android hoặc nhập tay.");
-        return;
-      }
-
-      state.voiceStarting = true;
-      const hasMicPermission = await requestMicrophonePermission();
-      state.voiceStarting = false;
-      if (!hasMicPermission) {
-        el.voiceBtn.textContent = "🎙";
-        return;
-      }
-
-      const recognition = new SpeechRecognition();
-      recognition.lang = "vi-VN";
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-      recognition.continuous = false;
-
-      state.voiceRecognition = recognition;
-      state.voiceGotResult = false;
-      el.voiceBtn.textContent = "■";
-      showStatus("Đang nghe. Giữ nút khi nói, thả tay để điền thông tin.");
-
-      recognition.onresult = event => {
-        const transcript = event.results[0][0].transcript.trim();
-        state.voiceGotResult = true;
-        applyVoiceTranscript(transcript);
-      };
-
-      recognition.onerror = () => {
-        showStatus("Không nghe được rõ. Kiểm tra quyền micro rồi thử lại.");
-      };
-
-      recognition.onend = () => {
-        if (!state.voiceGotResult) {
-          showStatus("Chưa nhận được nội dung. Hãy giữ nút, nói rõ câu giao dịch, rồi thả tay.");
-        }
-        state.voiceRecognition = null;
-        state.voiceStarting = false;
-        state.voiceShouldStop = false;
-        el.voiceBtn.textContent = "🎙";
-      };
-
-      try {
-        recognition.start();
-      } catch {
-        state.voiceRecognition = null;
-        state.voiceStarting = false;
-        el.voiceBtn.textContent = "🎙";
-        showStatus("Không bắt đầu nghe được. Hãy thử bấm giữ lại.");
-      }
-    }
-
-    function stopVoiceRecognition() {
-      if (!state.voiceRecognition) return;
-
-      try {
-        state.voiceRecognition.stop();
-      } catch {
-        state.voiceRecognition = null;
-        el.voiceBtn.textContent = "🎙";
-      }
-    }
-
-    async function requestMicrophonePermission() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showStatus("Trình duyệt chưa mở được micro cho trang này. Hãy chạy app bằng HTTPS và dùng Chrome/Edge.");
-        return false;
-      }
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(track => track.stop());
-        return true;
-      } catch (error) {
-        if (error.name === "NotAllowedError" || error.name === "PermissionDeniedError") {
-          if (isAppsScriptHost()) {
-            showStatus("Google Apps Script có thể đang chặn micro trong iframe. Nếu không hiện popup xin quyền, hãy host file HTML bằng GitHub Pages/Netlify/Vercel và để Apps Script chỉ lưu Google Sheets.");
-            return false;
-          }
-          showStatus("Micro đang bị chặn. Vào cài đặt trình duyệt để cho phép quyền micro cho trang này.");
-          return false;
-        }
-
-        if (error.name === "NotFoundError" || error.name === "DevicesNotFoundError") {
-          showStatus("Không tìm thấy micro trên thiết bị này.");
-          return false;
-        }
-
-        showStatus("Không mở được micro. Hãy thử chạy app qua HTTPS rồi mở lại bằng Chrome/Edge.");
-        return false;
-      }
-    }
-
-    function applyVoiceTranscript(transcript) {
-      const parsed = parseVoiceExpense(transcript);
-      if (!parsed.amount) {
-        el.note.value = transcript;
-        showStatus(`Đã ghi chú: "${transcript}". Bạn cần nhập thêm số tiền.`);
-        return;
-      }
-
-      state.activeType = parsed.type;
-      el.type.value = parsed.type;
-      document.querySelectorAll(".tabs button").forEach(button => {
-        button.classList.toggle("active", button.dataset.type === parsed.type);
-      });
-      renderCategoryOptions();
-
-      el.amount.value = formatPlain(parsed.amount);
-      el.category.value = parsed.category;
-      el.note.value = transcript;
-      if (el.quickText.value.trim() === transcript) {
-        el.quickText.value = "";
-      }
-      showStatus(`Đã nhận: ${typeLabel(parsed.type)} ${money(parsed.amount)} - ${parsed.category}. Kiểm tra lại rồi bấm Lưu.`);
-    }
-
-    function parseVoiceExpense(text) {
-      const normalized = normalizeVietnamese(text);
-      const amount = extractVoiceAmount(normalized);
-      const type = inferVoiceType(normalized);
-      const category = inferVoiceCategory(normalized, type);
-      return { amount, type, category };
-    }
-
-    function extractVoiceAmount(text) {
-      const compact = text.replace(/,/g, ".").replace(/\s+/g, " ");
-      const match = compact.match(/(\d+(?:\.\d+)?)\s*(trieu|tr|cu|nghin|ngan|k|dong|vnd)?/i);
-      if (!match) return 0;
-
-      const number = Number(match[1]);
-      const unit = match[2] || "";
-      if (!Number.isFinite(number)) return 0;
-      if (["trieu", "tr", "cu"].includes(unit)) return Math.round(number * 1000000);
-      if (["nghin", "ngan", "k"].includes(unit)) return Math.round(number * 1000);
-      return Math.round(number);
-    }
-
-    function inferVoiceType(text) {
-      if (/(luong|thuong|thu nhap|duoc tra|nhan tien|kinh doanh|lai|co tuc)/.test(text)) return "income";
-      if (/(tiet kiem|gui quy|quy khan cap|dau tu|tra no)/.test(text)) return "saving";
-      return "expense";
-    }
-
-    function inferVoiceCategory(text, type) {
-      const rules = {
-        expense: [
-          ["Ăn uống", /(an|com|pho|bun|banh|ca phe|tra sua|nha hang|do an|an trua|an toi|an sang)/],
-          ["Đi lại", /(xang|grab|taxi|xe|gui xe|bus|tau|may bay|di lai)/],
-          ["Nhà cửa", /(nha|thue nha|noi that|sua nha|dien nuoc|chung cu)/],
-          ["Hóa đơn", /(hoa don|dien|nuoc|internet|wifi|dien thoai|bao hiem)/],
-          ["Mua sắm", /(mua|shopping|quan ao|giay|do dung|sieu thi)/],
-          ["Sức khỏe", /(thuoc|kham|benh vien|bac si|suc khoe)/],
-          ["Giải trí", /(phim|game|du lich|di choi|giai tri|netflix|spotify)/],
-          ["Gia đình", /(ba me|con|gia dinh|tien nha|cho nha)/],
-          ["Học tập", /(hoc|sach|khoa hoc|hoc phi|lop)/]
-        ],
-        income: [
-          ["Lương", /(luong|salary)/],
-          ["Thưởng", /(thuong|bonus)/],
-          ["Kinh doanh", /(kinh doanh|ban hang|doanh thu)/],
-          ["Đầu tư", /(dau tu|lai|co tuc|chung khoan)/],
-          ["Quà tặng", /(qua|tang|duoc cho)/]
-        ],
-        saving: [
-          ["Quỹ khẩn cấp", /(khan cap|du phong)/],
-          ["Đầu tư", /(dau tu|chung khoan|quy)/],
-          ["Mục tiêu lớn", /(muc tieu|mua nha|mua xe|du lich)/],
-          ["Trả nợ", /(tra no|no)/]
-        ]
-      };
-
-      const matched = (rules[type] || []).find(([, pattern]) => pattern.test(text));
-      return matched ? matched[0] : "Khác";
-    }
-
-    function editEntry(id) {
-      const entry = state.entries.find(item => item.id === id);
-      if (!entry) return;
-      document.querySelectorAll(".tabs button").forEach(button => {
-        button.classList.toggle("active", button.dataset.type === entry.type);
-      });
-      state.activeType = entry.type;
-      el.type.value = entry.type;
-      renderCategoryOptions();
-      el.editId.value = entry.id;
-      el.amount.value = formatPlain(entry.amount);
-      el.date.value = entry.date;
-      el.category.value = entry.category;
-      el.method.value = entry.method;
-      el.note.value = entry.note || "";
-      el.saveBtn.textContent = "Cập nhật";
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function deleteEntry(id) {
-      if (!confirm("Xóa giao dịch này?")) return;
-      state.entries = state.entries.filter(item => item.id !== id);
-      persistEntries();
-      render();
-    }
-
-    function resetForm() {
-      el.entryForm.reset();
-      el.editId.value = "";
-      el.quickText.value = "";
-      el.type.value = state.activeType;
-      el.date.valueAsDate = new Date();
-      renderCategoryOptions();
-      el.saveBtn.textContent = "Lưu giao dịch";
-    }
-
-    function renderCategoryOptions() {
-      el.category.innerHTML = categories[state.activeType].map(name => `<option>${escapeHtml(name)}</option>`).join("");
-    }
-
-    function renderCategoryFilter() {
-      const all = [...new Set(Object.values(categories).flat())].sort((a, b) => a.localeCompare(b, "vi"));
-      el.categoryFilter.innerHTML = `<option value="">Tất cả</option>` + all.map(name => `<option>${escapeHtml(name)}</option>`).join("");
-    }
-
-    function render() {
-      const month = el.monthFilter.value;
-      const category = el.categoryFilter.value;
-      const entries = state.entries
-        .filter(item => !month || item.date.startsWith(month))
-        .filter(item => !category || item.category === category)
-        .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
-
-      renderSummary(month);
-      renderChart(entries);
-      renderList(entries);
-    }
-
-    function renderSummary(month) {
-      const monthEntries = state.entries.filter(item => !month || item.date.startsWith(month));
-      const expense = sum(monthEntries.filter(item => item.type === "expense"));
-      const income = sum(monthEntries.filter(item => item.type === "income"));
-      const saving = sum(monthEntries.filter(item => item.type === "saving"));
-      el.monthExpense.textContent = money(expense);
-      el.monthIncome.textContent = money(income);
-      el.monthBalance.textContent = money(income - expense - saving);
-    }
-
-    function renderChart(entries) {
-      const expenseRows = entries.filter(item => item.type !== "income");
-      const totals = expenseRows.reduce((acc, item) => {
-        acc[item.category] = (acc[item.category] || 0) + item.amount;
-        return acc;
-      }, {});
-      const rows = Object.entries(totals).sort((a, b) => b[1] - a[1]).slice(0, 8);
-      const max = Math.max(...rows.map(row => row[1]), 1);
-      if (!rows.length) {
-        el.chart.innerHTML = `<div class="empty">Chưa có dữ liệu chi tiêu trong bộ lọc này.</div>`;
-        return;
-      }
-      el.chart.innerHTML = rows.map(([name, value]) => `
-        <div class="bar-row">
-          <div class="bar-label" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(value / max * 100)}%"></div></div>
-          <div class="bar-value">${money(value)}</div>
-        </div>
-      `).join("");
-    }
-
-    function renderList(entries) {
-      if (!entries.length) {
-        el.transactionList.innerHTML = `<div class="empty">Chưa có giao dịch nào.</div>`;
-        return;
-      }
-
-      el.transactionList.innerHTML = entries.map(item => {
-        const sign = item.type === "income" ? "+" : "-";
-        const synced = item.synced ? "Đã đồng bộ" : "Chưa đồng bộ";
-        return `
-          <article class="transaction-card">
-            <div class="transaction-row">
-              <div>
-                <div class="transaction-title">
-                  <strong>${escapeHtml(item.category)}</strong>
-                  <span class="pill">${typeLabel(item.type)}</span>
-                </div>
-                <div class="meta">
-                  <span>${formatDate(item.date)}</span>
-                  <span>${escapeHtml(item.method)}</span>
-                  <span>${synced}</span>
+          <div class="innovation-grid">
+            <article class="event-card">
+              <img src="./assets/nft-frontier-art.png" alt="Metaverse event artwork" />
+              <div class="event-overlay">
+                <h3>Unlock Your NFTs Universe</h3>
+                <div>
+                  <span>ETHEREAL</span>
+                  <a href="#toolkit">Enter the Collection</a>
                 </div>
               </div>
-              <div class="amount ${item.type === "income" ? "income" : ""}">${sign}${money(item.amount)}</div>
+              <div class="event-actions">
+                <a href="#toolkit">Explore the Metaverse NFTs</a>
+                <a href="#contact">Discover New Product</a>
+              </div>
+            </article>
+
+            <article class="dream-card">
+              <h3>Meet the Dreamers Behind NFT Horizon's Creation</h3>
+              <p>
+                Where art meets blockchain, offering collectors and enthusiasts a seamless experience to explore, admire, and own.
+              </p>
+              <label for="email-input">Join the list</label>
+              <div class="email-row">
+                <input id="email-input" type="email" placeholder="Enter the NFTs line" />
+                <button type="button" aria-label="Submit email">+</button>
+              </div>
+              <a href="#contact">Discover Events</a>
+            </article>
+          </div>
+        </section>
+
+        <section class="section toolkit-section" id="toolkit" aria-labelledby="toolkit-title">
+          <div class="toolkit-panel" id="feature-panel">
+            <div class="toolkit-content" data-panel="0">
+              <span>01</span>
+              <h2 id="toolkit-title">NFT Toolkit: Maximize Your Digital Assets</h2>
+              <p>
+                Exploring new opportunities, our tools help you unlock the full potential of the NFT world: explore, engage, and elevate your digital assets like never before.
+              </p>
+              <p>
+                Discover innovative features that streamline trading, enhance security, and provide deep insights into the NFT market.
+              </p>
+              <a href="#contact">Learn More</a>
             </div>
-            ${item.note ? `<div class="note">${escapeHtml(item.note)}</div>` : ""}
-            <div class="card-actions">
-              <button class="secondary mini" type="button" onclick="editEntry('${item.id}')">Sửa</button>
-              <button class="danger mini" type="button" onclick="deleteEntry('${item.id}')">Xóa</button>
+            <div class="toolkit-art" aria-hidden="true">
+              <img src="./assets/nft-frontier-art.png" alt="" />
             </div>
-          </article>
-        `;
-      }).join("");
-    }
+            <div class="toolkit-tabs" role="tablist" aria-label="NFT toolkit features">
+              <button class="active" type="button" role="tab" aria-selected="true" data-tab="0">
+                <span>01</span><b>Create your own NFT's to easily.</b>
+              </button>
+              <button type="button" role="tab" aria-selected="false" data-tab="1">
+                <span>02</span><b>Exchange NFT's with other users.</b>
+              </button>
+              <button type="button" role="tab" aria-selected="false" data-tab="2">
+                <span>03</span><b>Build and showcase your NFT.</b>
+              </button>
+              <button type="button" role="tab" aria-selected="false" data-tab="3">
+                <span>04</span><b>Put your NFT's up for sale.</b>
+              </button>
+            </div>
+          </div>
+        </section>
 
-    async function syncEntries() {
-      if (isAppsScriptHost()) {
-        syncEntriesInAppsScript();
-        return;
-      }
+        <section class="section faq-section" id="faq" aria-labelledby="faq-title">
+          <div class="section-heading faq-heading">
+            <h2 id="faq-title">Frequently Asked Questions</h2>
+            <p>
+              FAQs, short for Frequently Asked Questions, is a section on websites or platforms where common questions.
+            </p>
+          </div>
 
-      if (!state.settings.scriptUrl) {
-        showStatus("Bạn cần nhập Google Apps Script Web App URL trong Cài đặt.");
-        el.settingsDialog.showModal();
-        return;
-      }
+          <div class="faq-list">
+            <article class="faq-item open">
+              <button type="button" aria-expanded="true">
+                <span>Can I trade my NFTs across different marketplaces?</span>
+                <b aria-hidden="true">+</b>
+              </button>
+              <p>
+                Yes, our platform supports cross-marketplace trading, allowing you to expand your reach and maximize your asset potential.
+              </p>
+            </article>
+            <article class="faq-item">
+              <button type="button" aria-expanded="false">
+                <span>What if someone duplicates my NFT?</span>
+                <b aria-hidden="true">+</b>
+              </button>
+              <p>
+                Verification tools and provenance records help expose duplicates, so buyers can trace the authenticated edition and creator history.
+              </p>
+            </article>
+            <article class="faq-item">
+              <button type="button" aria-expanded="false">
+                <span>How do I access my earnings?</span>
+                <b aria-hidden="true">+</b>
+              </button>
+              <p>
+                Earnings are tracked in your dashboard and can be withdrawn to a supported wallet once settlement is complete.
+              </p>
+            </article>
+            <article class="faq-item">
+              <button type="button" aria-expanded="false">
+                <span>How do I track my NFT collection?</span>
+                <b aria-hidden="true">+</b>
+              </button>
+              <p>
+                Collection analytics combine ownership, floor movement, rarity, and activity signals in one readable portal.
+              </p>
+            </article>
+          </div>
+        </section>
 
-      const unsynced = state.entries.filter(item => !item.synced);
-      if (!unsynced.length) {
-        showStatus("Không có giao dịch mới cần đồng bộ.");
-        return;
-      }
+        <section class="feature-banner section" aria-label="NFT visionary features">
+          <img src="./assets/nft-frontier-art.png" alt="Abstract molten NFT landscape" />
+          <div class="banner-glass">
+            <h2>Revolutionary Features for NFT Visionaries</h2>
+            <a href="#contact">Get Started</a>
+          </div>
+          <p>Each NFT represents ownership of a specific item, such as digital art, music, videos, or collectibles.</p>
+          <a class="banner-arrow" href="#contact" aria-label="Go to contact"></a>
+        </section>
+      </main>
 
-      showStatus(`Đang gửi ${unsynced.length} giao dịch lên Google Sheets...`);
-      try {
-        await fetch(state.settings.scriptUrl, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ rows: unsynced })
-        });
-        const syncedIds = new Set(unsynced.map(item => item.id));
-        state.entries = state.entries.map(item => syncedIds.has(item.id) ? { ...item, synced: true } : item);
-        persistEntries();
-        render();
-        showStatus("Đã gửi dữ liệu. Nếu Sheet chưa hiện ngay, kiểm tra quyền triển khai Apps Script.");
-      } catch (error) {
-        showStatus("Không gửi được dữ liệu. Kiểm tra mạng và URL Apps Script.");
-      }
-    }
+      <footer class="footer" id="contact">
+        <div class="footer-cta">
+          <div>
+            <h2>Do you have any questions?</h2>
+            <p>Feel free to send us your questions or request a free consultation.</p>
+            <a href="mailto:contact@metaverse-nexus.studio">Send a Message</a>
+          </div>
+          <p>
+            With this certification, you can pursue careers in fields such as content photography.
+          </p>
+        </div>
+        <div class="footer-grid">
+          <div>
+            <span>Disclaimer</span>
+            <nav aria-label="Footer">
+              <a href="#gallery">Marketplace</a>
+              <a href="#features">Collection</a>
+              <a href="#contact">Creators AI</a>
+              <a href="#about">About Us</a>
+              <a href="#features">How it Works</a>
+            </nav>
+          </div>
+          <div class="footer-contact">
+            <span>Contact</span>
+            <a href="tel:+18001234548">+1 800 123-4548</a>
+            <a href="mailto:success@nexus-studio.io">success@nexus-studio.io</a>
+          </div>
+          <div class="footer-contact">
+            <span>Opening Hours</span>
+            <p>Daily<br />24/7</p>
+          </div>
+          <div class="footer-brand">
+            <a class="wordmark" href="#home">Metaverse<span>Nexus</span></a>
+            <p>Simply web and brand home pages and complete the experience from screen.</p>
+            <small>© 2026 MetaverseNexus</small>
+          </div>
+        </div>
+      </footer>
+    </div>
 
-    function syncEntriesInAppsScript() {
-      const unsynced = state.entries.filter(item => !item.synced);
-      if (!unsynced.length) {
-        showStatus("Không có giao dịch mới cần đồng bộ.");
-        return;
-      }
-
-      showStatus(`Đang gửi ${unsynced.length} giao dịch lên Google Sheets...`);
-      google.script.run
-        .withSuccessHandler(result => {
-          if (!result || !result.ok) {
-            showStatus(result && result.message ? result.message : "Không gửi được dữ liệu.");
-            return;
-          }
-
-          const syncedIds = new Set(unsynced.map(item => item.id));
-          state.entries = state.entries.map(item => syncedIds.has(item.id) ? { ...item, synced: true } : item);
-          persistEntries();
-          render();
-          showStatus(`Đã đồng bộ. Thêm mới: ${result.inserted}, cập nhật: ${result.updated}.`);
-        })
-        .withFailureHandler(error => {
-          showStatus(error && error.message ? error.message : "Không gửi được dữ liệu lên Google Sheets.");
-        })
-        .saveRowsFromClient(unsynced);
-    }
-
-    function saveSettings() {
-      state.settings.scriptUrl = el.scriptUrl.value.trim();
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
-      showStatus("Đã lưu cài đặt.");
-      el.settingsDialog.close();
-    }
-
-    function isAppsScriptHost() {
-      return typeof google !== "undefined" && google.script && google.script.run;
-    }
-
-    function exportCsv() {
-      const header = ["id", "type", "amount", "date", "category", "method", "note", "createdAt", "synced"];
-      const rows = state.entries.map(item => header.map(key => csvCell(item[key])).join(","));
-      const csv = [header.join(","), ...rows].join("\n");
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `chi-tieu-${new Date().toISOString().slice(0, 10)}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function loadEntries() {
-      try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-      } catch {
-        return [];
-      }
-    }
-
-    function loadSettings() {
-      try {
-        return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {};
-      } catch {
-        return {};
-      }
-    }
-
-    function persistEntries() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.entries));
-    }
-
-    function parseAmount(value) {
-      return Number(String(value).replace(/[^\d]/g, ""));
-    }
-
-    function normalizeVietnamese(value) {
-      return String(value || "")
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/đ/g, "d");
-    }
-
-    function makeId() {
-      if (window.crypto && typeof window.crypto.randomUUID === "function") {
-        return window.crypto.randomUUID();
-      }
-      return `tx-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    }
-
-    function formatPlain(value) {
-      return String(Math.round(Number(value) || 0));
-    }
-
-    function sum(rows) {
-      return rows.reduce((total, item) => total + Number(item.amount || 0), 0);
-    }
-
-    function money(value) {
-      return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(value || 0);
-    }
-
-    function formatDate(value) {
-      return new Intl.DateTimeFormat("vi-VN", { dateStyle: "medium" }).format(new Date(value + "T00:00:00"));
-    }
-
-    function typeLabel(type) {
-      return { expense: "Chi", income: "Thu", saving: "Tiết kiệm" }[type] || type;
-    }
-
-    function csvCell(value) {
-      return `"${String(value ?? "").replace(/"/g, '""')}"`;
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    function showStatus(message) {
-      el.status.textContent = message;
-      setTimeout(() => {
-        if (el.status.textContent === message) el.status.textContent = "";
-      }, 5500);
-    }
-
-    window.editEntry = editEntry;
-    window.deleteEntry = deleteEntry;
-  </script>
-</body>
+    <script src="./app.js"></script>
+  </body>
 </html>
