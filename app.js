@@ -55,7 +55,7 @@ const memories = {
     eyebrow: "Hành tinh cam",
     title: "2 tuổi",
     icon: assetIcons.planetTwo,
-    photos: ["https://cdn.jsdelivr.net/gh/huynhngoclong1903/chitieu@main/assets/memories/2-tuoi.jpg"],
+    photos: ["https://d3efbsql7dignm.cloudfront.net/Longtest/2-tuoi.jpg"],
     text: "Kem bắt đầu có thật nhiều trò vui, cười vang và làm mọi ngày trong nhà rộn ràng hơn.",
     colors: ["#ffb453", "#ff6f59"]
   },
@@ -63,7 +63,7 @@ const memories = {
     eyebrow: "Trái Đất xanh",
     title: "3 tuổi",
     icon: assetIcons.planetThree,
-    photos: ["https://cdn.jsdelivr.net/gh/huynhngoclong1903/chitieu@main/assets/memories/3-tuoi.jpg"],
+    photos: ["https://d3efbsql7dignm.cloudfront.net/Longtest/3-tuoi.jpg"],
     text: "Một tuổi đầy câu hỏi dễ thương, chạy nhảy nhiều hơn và tò mò về cả bầu trời.",
     colors: ["#64e7ff", "#75d66f"]
   },
