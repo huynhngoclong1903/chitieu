@@ -39,7 +39,7 @@ const memories = {
     eyebrow: "Trạm đầu tiên",
     title: "Chào đời",
     icon: assetIcons.star,
-    photos: ["assets/memories/chao-doi.jpg", "assets/memories/chao-doi.png", "assets/memories/chao-doi.webp"],
+    photos: ["https://cdn.jsdelivr.net/gh/huynhngoclong1903/chitieu@main/assets/memories/chao-doi.jpg"],
     text: "Ngày Kem đáp xuống Trái Đất, cả nhà có thêm một vì sao nhỏ để yêu thương.",
     colors: ["#ffe867", "#ff7a59"]
   },
@@ -47,7 +47,7 @@ const memories = {
     eyebrow: "Mặt trăng nhỏ",
     title: "1 tuổi",
     icon: assetIcons.planetOne,
-    photos: ["assets/memories/1-tuoi.jpg", "assets/memories/1-tuoi.png", "assets/memories/1-tuoi.webp"],
+    photos: ["https://cdn.jsdelivr.net/gh/huynhngoclong1903/chitieu@main/assets/memories/1-tuoi.jpg"],
     text: "Những bước khám phá đầu tiên, đôi mắt tròn xoe và nụ cười làm cả nhà tan chảy.",
     colors: ["#f7f7ff", "#7fc7ff"]
   },
@@ -55,7 +55,7 @@ const memories = {
     eyebrow: "Hành tinh cam",
     title: "2 tuổi",
     icon: assetIcons.planetTwo,
-    photos: ["assets/memories/2-tuoi.jpg", "assets/memories/2-tuoi.png", "assets/memories/2-tuoi.webp"],
+    photos: ["https://cdn.jsdelivr.net/gh/huynhngoclong1903/chitieu@main/assets/memories/2-tuoi.jpg"],
     text: "Kem bắt đầu có thật nhiều trò vui, cười vang và làm mọi ngày trong nhà rộn ràng hơn.",
     colors: ["#ffb453", "#ff6f59"]
   },
@@ -63,7 +63,7 @@ const memories = {
     eyebrow: "Trái Đất xanh",
     title: "3 tuổi",
     icon: assetIcons.planetThree,
-    photos: ["assets/memories/3-tuoi.jpg", "assets/memories/3-tuoi.png", "assets/memories/3-tuoi.webp"],
+    photos: ["https://cdn.jsdelivr.net/gh/huynhngoclong1903/chitieu@main/assets/memories/3-tuoi.jpg"],
     text: "Một tuổi đầy câu hỏi dễ thương, chạy nhảy nhiều hơn và tò mò về cả bầu trời.",
     colors: ["#64e7ff", "#75d66f"]
   },
