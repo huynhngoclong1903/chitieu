@@ -39,7 +39,7 @@ const memories = {
     eyebrow: "Trạm đầu tiên",
     title: "Chào đời",
     icon: assetIcons.star,
-    photos: ["https://cdn.jsdelivr.net/gh/huynhngoclong1903/chitieu@main/assets/memories/chao-doi.jpg"],
+    photos: ["https://d3efbsql7dignm.cloudfront.net/Longtest/chao-doi.jpg"],
     text: "Ngày Kem đáp xuống Trái Đất, cả nhà có thêm một vì sao nhỏ để yêu thương.",
     colors: ["#ffe867", "#ff7a59"]
   },
@@ -47,7 +47,7 @@ const memories = {
     eyebrow: "Mặt trăng nhỏ",
     title: "1 tuổi",
     icon: assetIcons.planetOne,
-    photos: ["https://cdn.jsdelivr.net/gh/huynhngoclong1903/chitieu@main/assets/memories/1-tuoi.jpg"],
+    photos: ["https://d3efbsql7dignm.cloudfront.net/Longtest/1-tuoi.jpg"],
     text: "Những bước khám phá đầu tiên, đôi mắt tròn xoe và nụ cười làm cả nhà tan chảy.",
     colors: ["#f7f7ff", "#7fc7ff"]
   },
