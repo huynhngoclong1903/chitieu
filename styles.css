@@ -58,7 +58,7 @@ button {
   transform: translateX(-50%);
   background-image:
     linear-gradient(180deg, rgba(4, 11, 40, 0.12) 0%, rgba(4, 13, 62, 0.05) 38%, rgba(6, 30, 109, 0.3) 72%, rgba(2, 9, 39, 0.62) 100%),
-    url("assets/kem-space-bg.png");
+    url("https://d3efbsql7dignm.cloudfront.net/Longtest/kem-space-bg.png");
   background-position: center top;
   background-size: cover;
   background-repeat: no-repeat;
