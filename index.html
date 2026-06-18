@@ -2,145 +2,235 @@
 <html lang="vi">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Khu vườn trưởng thành của Kem</title>
-    <meta
-      name="description"
-      content="Khu vườn lưu giữ hành trình trưởng thành của bé từ ngày chào đời đến sinh nhật 4 tuổi."
-    />
-    <link rel="stylesheet" href="./styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#06185a" />
+    <title>Sinh nhật Kem 4 tuổi</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="page">
-      <section class="welcome-screen" id="welcome" aria-label="Chào mừng đến khu vườn của Kem">
-        <div class="welcome-glow" aria-hidden="true">
-          <span></span><span></span><span></span>
-        </div>
-        <div class="welcome-visual" aria-hidden="true">
-          <img src="./assets/photos/photo-03082025.jpg" alt="" />
-        </div>
-        <div class="welcome-copy">
-          <p>03/08/2022 - 03/08/2026</p>
-          <h1>Khu vườn trưởng thành của Kem</h1>
-          <span>Tình yêu của cha mẹ lớn lên cùng từng nụ cười của con.</span>
-          <a href="#top">Bắt đầu hành trình</a>
-        </div>
-      </section>
+    <main class="app" aria-label="Trang mừng sinh nhật bé Kem">
+      <div class="space-bg" aria-hidden="true"></div>
+      <div class="twinkle-field" aria-hidden="true"></div>
+      <div class="ambient-planets" id="ambientPlanets" aria-hidden="true"></div>
+      <canvas class="confetti-canvas" id="confettiCanvas" aria-hidden="true"></canvas>
 
-      <header class="hero" id="top">
-        <div class="sky-shapes" aria-hidden="true">
-          <span class="sun"></span>
-          <span class="cloud cloud-a"></span>
-          <span class="cloud cloud-b"></span>
-          <span class="cloud cloud-c"></span>
-          <span class="petal petal-a"></span>
-          <span class="petal petal-b"></span>
-          <span class="petal petal-c"></span>
-          <span class="butterfly butterfly-a"></span>
-          <span class="butterfly butterfly-b"></span>
+      <section class="screen hero" id="home" data-nav="Đầu trang">
+        <header class="topbar">
+          <p class="brand">Nhật ký lớn lên của Kem</p>
+          <button class="magic-toggle" id="magicToggle" type="button" aria-label="Bật thêm lấp lánh" aria-pressed="false">
+            <span class="soft-icon icon-sparkle" aria-hidden="true"></span>
+          </button>
+        </header>
+
+        <div class="hero-copy">
+          <p class="badge"><span class="soft-icon icon-star" aria-hidden="true"></span> Vũ trụ tuổi thơ</p>
+          <h1>
+            <span>Kem sắp</span>
+            <strong><b>4</b> tuổi rồi!</strong>
+          </h1>
+          <p class="intro">
+            Cùng đếm ngược và lưu lại những cột mốc đáng nhớ trên chuyến bay trưởng thành của bé.
+          </p>
         </div>
 
-        <div class="hero-inner">
-          <div class="hero-copy">
-            <p class="eyebrow">03/08/2022 - 03/08/2026</p>
-            <h1>
-              <span>Khu vườn</span>
-              <span>trưởng thành</span>
-              <span>của Kem</span>
-            </h1>
-            <p class="hero-text">
-              Một khu vườn nhỏ lưu lại từng nụ cười, từng bước lớn lên và những mùa sinh nhật thật rực rỡ của bé.
-            </p>
+        <div class="quick-actions" aria-label="Hành động nhanh">
+          <button class="btn btn-primary" id="launchBtn" type="button">
+            <span class="soft-icon icon-rocket" aria-hidden="true"></span>
+            Phóng tới sinh nhật
+          </button>
+          <button class="btn btn-soft" id="wishBtn" type="button">
+            <span class="soft-icon icon-wish" aria-hidden="true"></span>
+            Rắc điều ước
+          </button>
+        </div>
+
+        <div class="hero-filler" aria-hidden="true"></div>
+
+        <section class="countdown-card" aria-labelledby="countdownTitle">
+          <div class="countdown-comets" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
           </div>
-
-          <div class="hero-memory" aria-label="Hai khoảnh khắc nổi bật">
-            <article class="memory-card memory-card-start">
-              <img src="./assets/photos/photo-03082022.jpg" alt="Bé lúc mới sinh" />
-              <div>
-                <span>Khởi đầu</span>
-                <strong>03/08/2022</strong>
-              </div>
-            </article>
-            <article class="memory-card memory-card-now">
-              <img src="./assets/photos/photo-03022026.jpg" alt="Bé ở mốc 3 tuổi 6 tháng" />
-              <div>
-                <span>Đang lớn lên</span>
-                <strong>03/02/2026</strong>
-              </div>
-            </article>
-          </div>
-
-          <aside class="countdown-panel birthday-countdown" aria-labelledby="countdown-title">
-            <div class="party-sparkles" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span>
+          <h2 id="countdownTitle">
+            <span class="soft-icon icon-star" aria-hidden="true"></span>
+            Đếm ngược đến sinh nhật
+            <span class="soft-icon icon-sparkle" aria-hidden="true"></span>
+          </h2>
+          <div class="countdown-grid" id="countdown" aria-live="polite">
+            <div class="time-box">
+              <strong data-unit="days">00</strong>
+              <span>Ngày</span>
             </div>
-            <div class="party-bunting" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span>
+            <div class="dot" aria-hidden="true"></div>
+            <div class="time-box">
+              <strong data-unit="hours">00</strong>
+              <span>Giờ</span>
             </div>
-            <span class="mini-label">Sắp tới</span>
-            <h2 id="countdown-title">Sinh nhật 4 tuổi</h2>
-            <p>03/08/2026</p>
-            <div class="countdown-grid" data-countdown="2026-08-03T00:00:00+07:00">
-              <span><b data-days>0</b><small>ngày</small></span>
-              <span><b data-hours>0</b><small>giờ</small></span>
-              <span><b data-minutes>0</b><small>phút</small></span>
+            <div class="dot" aria-hidden="true"></div>
+            <div class="time-box">
+              <strong data-unit="minutes">00</strong>
+              <span>Phút</span>
             </div>
-            <div class="party-cake" aria-hidden="true">
-              <span class="cake-flame"></span>
-              <span class="cake-candle"></span>
-              <span class="cake-top"></span>
-              <span class="cake-base"></span>
+            <div class="dot" aria-hidden="true"></div>
+            <div class="time-box">
+              <strong data-unit="seconds">00</strong>
+              <span>Giây</span>
             </div>
-          </aside>
-        </div>
-      </header>
-
-      <main>
-        <section class="timeline-section" id="timeline" aria-labelledby="timeline-title">
-          <div class="section-heading">
-            <h2 id="timeline-title">Tình yêu của cha mẹ thật vui khi thấy con trưởng thành từng ngày</h2>
-          </div>
-
-          <div class="timeline-garden" id="timelineGarden" aria-live="polite"></div>
-          <div class="garden-rail" aria-hidden="true">
-            <span></span><span></span><span></span><span></span><span></span>
           </div>
         </section>
 
-      </main>
-
-      <footer class="footer">
-        <p>Khu vườn trưởng thành của Kem</p>
-        <a href="#top">Về đầu trang</a>
-      </footer>
-    </div>
-
-    <div class="scroll-guide" aria-hidden="true">
-      <span class="scroll-guide-icon"></span>
-      <span>Kéo xuống để xem tiếp</span>
-    </div>
-
-    <div class="modal" id="memoryModal" aria-hidden="true">
-      <div class="modal-backdrop" data-close-modal></div>
-      <article class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-        <button class="modal-close" type="button" aria-label="Đóng" data-close-modal></button>
-        <div class="modal-media">
-          <img id="modalImage" alt="" />
-          <div class="modal-placeholder" id="modalPlaceholder">Chờ ảnh bé</div>
+        <div class="floating-goodies" aria-hidden="true">
+          <span class="floaty floaty-one soft-icon icon-balloon"></span>
+          <span class="floaty floaty-two soft-icon icon-star"></span>
+          <span class="floaty floaty-three soft-icon icon-cake"></span>
         </div>
-        <div class="modal-content">
-          <p class="eyebrow" id="modalDate"></p>
-          <h2 id="modalTitle"></h2>
-          <p id="modalNote"></p>
-          <div class="video-slot" id="videoSlot"></div>
-          <div class="modal-nav">
-            <button type="button" data-prev>Trước</button>
-            <button type="button" data-next>Tiếp</button>
+      </section>
+
+      <section class="screen journey" id="journey" data-nav="Hành trình">
+        <div class="section-kicker">Bản đồ ký ức của Kem</div>
+        <h2 class="section-title">Đường bay lớn lên</h2>
+        <p class="journey-lead">Chạm vào từng trạm để mở album nhỏ của bé.</p>
+        <ol class="flight-map" aria-label="Các mốc lớn lên của Kem">
+          <li class="flight-stop is-left">
+            <button class="memory-orb" type="button" data-memory="birth" aria-label="Mở ký ức Chào đời">
+              <span class="orb-photo" aria-hidden="true"></span>
+            </button>
+            <div class="flight-copy">
+              <span>Trạm đầu tiên</span>
+              <strong>Chào đời</strong>
+              <small>Kem đáp xuống Trái Đất</small>
+            </div>
+          </li>
+          <li class="flight-stop is-right">
+            <button class="memory-orb" type="button" data-memory="one" aria-label="Mở ký ức 1 tuổi">
+              <span class="orb-photo" aria-hidden="true"></span>
+            </button>
+            <div class="flight-copy">
+              <span>Mặt trăng nhỏ</span>
+              <strong>1 tuổi</strong>
+              <small>Chạm ngõ thế giới</small>
+            </div>
+          </li>
+          <li class="flight-stop is-left">
+            <button class="memory-orb" type="button" data-memory="two" aria-label="Mở ký ức 2 tuổi">
+              <span class="orb-photo" aria-hidden="true"></span>
+            </button>
+            <div class="flight-copy">
+              <span>Hành tinh cam</span>
+              <strong>2 tuổi</strong>
+              <small>Cười vang cả nhà</small>
+            </div>
+          </li>
+          <li class="flight-stop is-right">
+            <button class="memory-orb" type="button" data-memory="three" aria-label="Mở ký ức 3 tuổi">
+              <span class="orb-photo" aria-hidden="true"></span>
+            </button>
+            <div class="flight-copy">
+              <span>Trái Đất xanh</span>
+              <strong>3 tuổi</strong>
+              <small>Hỏi cả bầu trời</small>
+            </div>
+          </li>
+          <li class="flight-stop is-left is-future">
+            <button class="memory-orb gift-orb" type="button" data-memory="four" aria-label="Mở cổng sinh nhật 4 tuổi">
+              <span class="orb-photo" aria-hidden="true"></span>
+            </button>
+            <div class="flight-copy">
+              <span>Điểm đến chờ mở</span>
+              <strong>4 tuổi</strong>
+              <small id="journeyCountdown">Sắp tới sinh nhật rồi</small>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="screen moments" id="moments" data-nav="Khoảnh khắc">
+        <div class="section-kicker">Album yêu thương</div>
+        <h2 class="section-title">Khoảnh khắc đáng nhớ</h2>
+        <div class="family-album">
+          <button class="family-photo" id="familyPhoto" type="button" aria-label="Mở ảnh gia đình">
+            <span class="soft-icon icon-photo" aria-hidden="true"></span>
+            <strong>Ảnh gia đình</strong>
+            <small>Đặt ảnh vào assets/memories/family.jpg</small>
+          </button>
+          <div class="memory-notes" aria-label="Những khoảnh khắc nhỏ">
+            <article class="memory-note">
+              <span class="soft-icon icon-smile" aria-hidden="true"></span>
+              <strong>Nụ cười tỏa nắng</strong>
+            </article>
+            <article class="memory-note">
+              <span class="soft-icon icon-puzzle" aria-hidden="true"></span>
+              <strong>Ham học hỏi</strong>
+            </article>
+            <article class="memory-note">
+              <span class="soft-icon icon-sun" aria-hidden="true"></span>
+              <strong>Chuyến đi đầu đời</strong>
+            </article>
+            <article class="memory-note">
+              <span class="soft-icon icon-gift" aria-hidden="true"></span>
+              <strong>Điều ước tuổi 4</strong>
+            </article>
           </div>
         </div>
-      </article>
-    </div>
+      </section>
 
-    <script src="./app.js"></script>
+      <section class="screen birthday" id="birthday" data-nav="Sinh nhật">
+        <div class="birthday-card">
+          <span class="rocket-badge" aria-hidden="true">
+            <span class="soft-icon icon-rocket"></span>
+          </span>
+          <h2>Sẵn sàng cho hành trình mới?</h2>
+          <p>Cùng Kem bay tới sinh nhật 4 tuổi và khám phá những điều tuyệt vời nhé!</p>
+          <button class="btn btn-party" id="partyBtn" type="button">
+            <span class="soft-icon icon-cake" aria-hidden="true"></span>
+            Mở tiệc nhỏ
+          </button>
+        </div>
+      </section>
+
+      <nav class="bottom-nav" aria-label="Điều hướng trang">
+        <a href="#home" class="active">
+          <span class="soft-icon icon-home" aria-hidden="true"></span>
+          Đầu trang
+        </a>
+        <a href="#journey">
+          <span class="soft-icon icon-planet" aria-hidden="true"></span>
+          Hành trình
+        </a>
+        <a href="#moments">
+          <span class="soft-icon icon-photo" aria-hidden="true"></span>
+          Khoảnh khắc
+        </a>
+        <a href="#birthday">
+          <span class="soft-icon icon-cake" aria-hidden="true"></span>
+          Sinh nhật
+        </a>
+      </nav>
+
+      <div class="memory-drawer" id="memoryDrawer" hidden>
+        <button class="drawer-backdrop" type="button" aria-label="Đóng album ký ức"></button>
+        <section class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+          <button class="drawer-close" id="drawerClose" type="button" aria-label="Đóng album">×</button>
+          <div class="drawer-photo" id="drawerPhoto" aria-hidden="true"></div>
+          <p class="drawer-eyebrow" id="drawerEyebrow"></p>
+          <h2 id="drawerTitle"></h2>
+          <p id="drawerText"></p>
+          <div class="drawer-strip" aria-label="Các khung hình gợi ý">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <button class="btn btn-primary drawer-action" id="drawerAction" type="button">
+            <span class="soft-icon icon-sparkle" aria-hidden="true"></span>
+            <span class="action-label">Rắc sao ký ức</span>
+          </button>
+        </section>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+
+    <script src="app.js"></script>
   </body>
 </html>

@@ -1,334 +1,459 @@
-const milestones = [
-  {
-    date: "03/08/2022",
-    iso: "2022-08-03",
+const BIRTHDAY_TIME = new Date("2026-08-03T00:00:00+07:00");
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const app = document.querySelector(".app");
+const twinkleField = document.querySelector(".twinkle-field");
+const ambientPlanets = document.querySelector("#ambientPlanets");
+const countdown = document.querySelector("#countdown");
+const journeyCountdown = document.querySelector("#journeyCountdown");
+const toast = document.querySelector("#toast");
+const drawer = document.querySelector("#memoryDrawer");
+const drawerPhoto = document.querySelector("#drawerPhoto");
+const drawerEyebrow = document.querySelector("#drawerEyebrow");
+const drawerTitle = document.querySelector("#drawerTitle");
+const drawerText = document.querySelector("#drawerText");
+const drawerAction = document.querySelector("#drawerAction");
+const drawerActionLabel = drawerAction.querySelector(".action-label");
+const familyPhotoButton = document.querySelector("#familyPhoto");
+const canvas = document.querySelector("#confettiCanvas");
+const ctx = canvas.getContext("2d");
+const pieces = [];
+const navLinks = [...document.querySelectorAll(".bottom-nav a")];
+let animationFrame = null;
+let toastTimer = null;
+let activeMemory = null;
+let activeFamilyPhoto = null;
+let previousCountdown = {};
+
+const assetIcons = {
+  planetOne: "assets/1.png",
+  planetTwo: "assets/2.png",
+  planetThree: "assets/3.png",
+  planetFour: "assets/4.png",
+  star: "assets/5.png"
+};
+const familyPhotos = ["assets/memories/family.jpg", "assets/memories/family.png", "assets/memories/family.webp"];
+
+const memories = {
+  birth: {
+    eyebrow: "Trạm đầu tiên",
     title: "Chào đời",
-    note: "Ngày đầu tiên khu vườn nhỏ có thêm một bông hoa thật đặc biệt.",
-    accent: "#ff75a0",
-    image: "./assets/photos/photo-03082022.jpg",
-    position: "50% 42%",
-    type: "start",
-    video: ""
+    icon: assetIcons.star,
+    photos: ["assets/memories/chao-doi.jpg", "assets/memories/chao-doi.png", "assets/memories/chao-doi.webp"],
+    text: "Ngày Kem đáp xuống Trái Đất, cả nhà có thêm một vì sao nhỏ để yêu thương.",
+    colors: ["#ffe867", "#ff7a59"]
   },
-  {
-    date: "03/02/2023",
-    iso: "2023-02-03",
-    title: "6 tháng",
-    note: "Nụ cười đầu đời làm cả nhà thấy ngày nào cũng có nắng.",
-    accent: "#ffb452",
-    image: "./assets/photos/photo-03022023.jpg",
-    position: "50% 50%",
-    fit: "contain",
-    type: "small",
-    video: ""
-  },
-  {
-    date: "03/08/2023",
-    iso: "2023-08-03",
+  one: {
+    eyebrow: "Mặt trăng nhỏ",
     title: "1 tuổi",
-    note: "Mốc sinh nhật đầu tiên, bé bắt đầu khám phá thế giới theo cách rất riêng.",
-    accent: "#63c9f4",
-    image: "./assets/photos/photo-03082023.jpg",
-    position: "50% 44%",
-    type: "birthday",
-    video: ""
+    icon: assetIcons.planetOne,
+    photos: ["assets/memories/1-tuoi.jpg", "assets/memories/1-tuoi.png", "assets/memories/1-tuoi.webp"],
+    text: "Những bước khám phá đầu tiên, đôi mắt tròn xoe và nụ cười làm cả nhà tan chảy.",
+    colors: ["#f7f7ff", "#7fc7ff"]
   },
-  {
-    date: "03/02/2024",
-    iso: "2024-02-03",
-    title: "1 tuổi 6 tháng",
-    note: "Một chồi non giữa mùa, thêm một khoảnh khắc ấm áp bên gia đình.",
-    accent: "#a98af0",
-    image: "./assets/photos/photo-03022024.jpg",
-    position: "50% 44%",
-    type: "small",
-    video: ""
-  },
-  {
-    date: "03/08/2024",
-    iso: "2024-08-03",
+  two: {
+    eyebrow: "Hành tinh cam",
     title: "2 tuổi",
-    note: "Sinh nhật 2 tuổi rực rỡ với thật nhiều nụ cười và màu vàng ấm áp.",
-    accent: "#55cf89",
-    image: "./assets/photos/photo-03082024.jpg",
-    extraImages: ["./assets/photos/photo-03082024-alt.jpg"],
-    position: "50% 46%",
-    type: "birthday",
-    video: ""
+    icon: assetIcons.planetTwo,
+    photos: ["assets/memories/2-tuoi.jpg", "assets/memories/2-tuoi.png", "assets/memories/2-tuoi.webp"],
+    text: "Kem bắt đầu có thật nhiều trò vui, cười vang và làm mọi ngày trong nhà rộn ràng hơn.",
+    colors: ["#ffb453", "#ff6f59"]
   },
-  {
-    date: "03/02/2025",
-    iso: "2025-02-03",
-    title: "2 tuổi 6 tháng",
-    note: "Một nửa năm đầy lí lắc, bé cười tươi trong vòng tay cả nhà.",
-    accent: "#ff7b64",
-    image: "./assets/photos/photo-03022025.jpg",
-    position: "50% 28%",
-    fit: "contain",
-    type: "small",
-    video: ""
-  },
-  {
-    date: "03/08/2025",
-    iso: "2025-08-03",
+  three: {
+    eyebrow: "Trái Đất xanh",
     title: "3 tuổi",
-    note: "Bé thêm một tuổi, thêm một chút tự tin và thật nhiều khoảnh khắc đáng yêu.",
-    accent: "#ffdc4f",
-    image: "./assets/photos/photo-03082025.jpg",
-    position: "50% 44%",
-    type: "birthday",
-    video: ""
+    icon: assetIcons.planetThree,
+    photos: ["assets/memories/3-tuoi.jpg", "assets/memories/3-tuoi.png", "assets/memories/3-tuoi.webp"],
+    text: "Một tuổi đầy câu hỏi dễ thương, chạy nhảy nhiều hơn và tò mò về cả bầu trời.",
+    colors: ["#64e7ff", "#75d66f"]
   },
-  {
-    date: "03/02/2026",
-    iso: "2026-02-03",
-    title: "3 tuổi 6 tháng",
-    note: "Một mốc nhỏ thật ấm, khi bé đã lớn hơn trong từng câu nói và ánh mắt.",
-    accent: "#a98af0",
-    image: "./assets/photos/photo-03022026.jpg",
-    position: "50% 50%",
-    fit: "contain",
-    type: "small",
-    video: ""
-  },
-  {
-    date: "03/08/2026",
-    iso: "2026-08-03",
+  four: {
+    eyebrow: "Cổng sinh nhật",
     title: "4 tuổi",
-    note: "Một hộp quà nhỏ đang giữ lại điều bất ngờ cho ngày Kem tròn 4 tuổi.",
-    accent: "#ff75a0",
-    image: "",
-    position: "50% 50%",
-    type: "final",
-    video: ""
+    icon: assetIcons.planetFour,
+    photos: ["assets/memories/4-tuoi.jpg", "assets/memories/4-tuoi.png", "assets/memories/4-tuoi.webp"],
+    text: "Hộp quà tuổi 4 vẫn đang chờ mở. Khi tới sinh nhật, nơi này sẽ bừng sáng thành lời chúc mừng thật lớn cho Kem.",
+    openText: "Cổng sinh nhật đã mở rồi! Chúc Kem tuổi 4 thật vui, khỏe, hồn nhiên và có thêm thật nhiều chuyến bay đáng nhớ.",
+    colors: ["#ffdc3f", "#64e7ff"],
+    future: true
   }
-];
+};
 
-const timelineGarden = document.querySelector("#timelineGarden");
-const modal = document.querySelector("#memoryModal");
-const modalImage = document.querySelector("#modalImage");
-const modalMedia = document.querySelector(".modal-media");
-const modalPlaceholder = document.querySelector("#modalPlaceholder");
-const modalDate = document.querySelector("#modalDate");
-const modalTitle = document.querySelector("#modalTitle");
-const modalNote = document.querySelector("#modalNote");
-const videoSlot = document.querySelector("#videoSlot");
-let activeIndex = 0;
-
-function renderTimeline() {
-  timelineGarden.innerHTML = milestones
-    .map((item, index) => {
-      const isSmall = item.type === "small";
-      const isStart = item.type === "start";
-      const isFinal = item.type === "final";
-      const classes = [
-        "milestone",
-        isSmall ? "milestone-small" : "",
-        isStart ? "milestone-start" : "",
-        isFinal ? "milestone-final" : ""
-      ]
-        .filter(Boolean)
-        .join(" ");
-
-      const photo = item.image
-        ? `<img src="${item.image}" alt="${item.title} - ${item.date}" />`
-        : isFinal
-          ? `
-            <div class="surprise-stage" aria-hidden="true">
-              <span class="surprise-confetti surprise-confetti-a"></span>
-              <span class="surprise-confetti surprise-confetti-b"></span>
-              <span class="surprise-confetti surprise-confetti-c"></span>
-              <span class="surprise-gift">
-                <span class="gift-lid"></span>
-                <span class="gift-box"></span>
-                <span class="gift-ribbon"></span>
-              </span>
-              <strong>Điều bất ngờ của Kem</strong>
-            </div>
-          `
-          : `<span>Chờ ảnh bé</span>`;
-      const placeholderClass = item.image ? "" : isFinal ? " is-placeholder is-surprise" : " is-placeholder";
-      const countdownBadge = isFinal ? `<span class="countdown-mini" data-card-days></span>` : "";
-
-      const fit = item.fit || "cover";
-
-      return `
-        <article class="${classes}" style="--accent: ${item.accent}; --position: ${item.position}; --fit: ${fit};">
-          <span class="marker">${index + 1}</span>
-          <div class="milestone-card">
-            <div class="card-bloom" aria-hidden="true">
-              <span></span><span></span><span></span><span></span>
-            </div>
-            <i class="paper-tape paper-tape-a" aria-hidden="true"></i>
-            <i class="paper-tape paper-tape-b" aria-hidden="true"></i>
-            <button class="memory-button" type="button" data-open="${index}" aria-label="Mở kỷ niệm ${item.title} ${item.date}">
-              <div class="photo-frame${placeholderClass}">${photo}</div>
-              <div class="card-copy">
-                <span>${item.date}</span>
-                <strong>${item.title}</strong>
-                <p>${item.note}</p>
-              </div>
-              ${countdownBadge}
-            </button>
-            <button class="play-chip" type="button" data-video="${index}" aria-label="Mở video kỷ niệm ${item.title}"></button>
-          </div>
-        </article>
-      `;
-    })
-    .join("");
-
-  timelineGarden.querySelectorAll("[data-open]").forEach((button) => {
-    button.addEventListener("click", () => openModal(Number(button.dataset.open)));
-  });
-
-  timelineGarden.querySelectorAll("[data-video]").forEach((button) => {
-    button.addEventListener("click", () => openVideoModal(Number(button.dataset.video)));
-  });
-
-  observeCards();
-}
-
-function observeCards() {
-  const cards = document.querySelectorAll(".milestone");
-  if (!("IntersectionObserver" in window)) {
-    cards.forEach((card) => card.classList.add("is-visible"));
-    return;
-  }
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.18 }
-  );
-
-  cards.forEach((card) => observer.observe(card));
-}
-
-function openModal(index) {
-  activeIndex = index;
-  const item = milestones[index];
-  modal.classList.remove("is-video-only");
-  modalDate.textContent = item.date;
-  modalTitle.textContent = item.title;
-  modalNote.textContent = item.note;
-
-  if (item.image) {
-    modalImage.src = item.image;
-    modalImage.alt = `${item.title} - ${item.date}`;
-    modalMedia.classList.remove("is-empty");
-  } else {
-    modalImage.removeAttribute("src");
-    modalImage.alt = "";
-    modalPlaceholder.textContent = item.type === "final" ? "Điều bất ngờ sinh nhật của Kem" : "Chờ ảnh bé";
-    modalMedia.classList.add("is-empty");
-  }
-
-  renderVideo(item);
-  burstConfetti(item.accent);
-  modal.classList.add("is-open");
-  modal.setAttribute("aria-hidden", "false");
-  document.body.style.overflow = "hidden";
-}
-
-function openVideoModal(index) {
-  activeIndex = index;
-  const item = milestones[index];
-  modal.classList.add("is-video-only");
-  modalDate.textContent = "";
-  modalTitle.textContent = `Video ${item.title}`;
-  modalNote.textContent = "";
-  modalImage.removeAttribute("src");
-  modalImage.alt = "";
-  modalMedia.classList.add("is-empty");
-  modalPlaceholder.textContent = "Video kỷ niệm";
-  renderVideo(item);
-  burstConfetti(item.accent);
-  modal.classList.add("is-open");
-  modal.setAttribute("aria-hidden", "false");
-  document.body.style.overflow = "hidden";
-}
-
-function closeModal() {
-  modal.classList.remove("is-open");
-  modal.classList.remove("is-video-only");
-  modal.setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "";
-  videoSlot.innerHTML = "";
-}
-
-function renderVideo(item) {
-  if (item.video) {
-    videoSlot.innerHTML = `
-      <iframe
-        src="https://www.youtube.com/embed/${item.video}"
-        title="Video kỷ niệm ${item.title}"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen
-      ></iframe>
-    `;
-  } else {
-    videoSlot.innerHTML = `<div class="video-empty">Video kỷ niệm sẽ được thêm sau</div>`;
-  }
-}
-
-function moveModal(step) {
-  const nextIndex = (activeIndex + step + milestones.length) % milestones.length;
-  openModal(nextIndex);
-}
-
-function burstConfetti(color) {
-  const burst = document.createElement("div");
-  burst.className = "confetti-burst";
-  const colors = [color, "#ffdc4f", "#63c9f4", "#ff75a0", "#55cf89", "#a98af0"];
-
-  for (let index = 0; index < 26; index += 1) {
-    const piece = document.createElement("span");
-    piece.style.setProperty("--x", `${Math.cos(index * 0.62) * (90 + (index % 5) * 14)}px`);
-    piece.style.setProperty("--y", `${Math.sin(index * 0.62) * (72 + (index % 4) * 18)}px`);
-    piece.style.setProperty("--delay", `${(index % 6) * 18}ms`);
-    piece.style.background = colors[index % colors.length];
-    burst.appendChild(piece);
-  }
-
-  document.body.appendChild(burst);
-  window.setTimeout(() => burst.remove(), 950);
+function pad(value) {
+  return String(value).padStart(2, "0");
 }
 
 function updateCountdown() {
-  const target = new Date("2026-08-03T00:00:00+07:00");
-  const now = new Date();
-  const diff = Math.max(0, target - now);
-  const totalMinutes = Math.floor(diff / 60000);
-  const days = Math.floor(totalMinutes / 1440);
-  const hours = Math.floor((totalMinutes % 1440) / 60);
-  const minutes = totalMinutes % 60;
+  const distance = BIRTHDAY_TIME.getTime() - Date.now();
+  const safeDistance = Math.max(0, distance);
+  const values = {
+    days: Math.floor(safeDistance / 86400000),
+    hours: Math.floor((safeDistance % 86400000) / 3600000),
+    minutes: Math.floor((safeDistance % 3600000) / 60000),
+    seconds: Math.floor((safeDistance % 60000) / 1000)
+  };
 
-  document.querySelectorAll("[data-days]").forEach((el) => (el.textContent = days));
-  document.querySelectorAll("[data-hours]").forEach((el) => (el.textContent = hours));
-  document.querySelectorAll("[data-minutes]").forEach((el) => (el.textContent = minutes));
-  document.querySelectorAll("[data-final-days]").forEach((el) => (el.textContent = `${days} ngày`));
-  document.querySelectorAll("[data-card-days]").forEach((el) => (el.textContent = `Còn ${days} ngày`));
+  Object.entries(values).forEach(([unit, value]) => {
+    const number = countdown.querySelector(`[data-unit="${unit}"]`);
+    number.textContent = pad(value);
+    if (previousCountdown[unit] !== undefined && previousCountdown[unit] !== value) {
+      const box = number.closest(".time-box");
+      box.classList.remove("is-ticking");
+      void box.offsetWidth;
+      box.classList.add("is-ticking");
+    }
+  });
+  previousCountdown = values;
+
+  if (distance <= 0) {
+    document.querySelector("#countdownTitle").innerHTML = '<span class="soft-icon icon-cake" aria-hidden="true"></span> Chúc mừng sinh nhật Kem!';
+    if (journeyCountdown) {
+      journeyCountdown.textContent = "Cổng sinh nhật đã mở!";
+    }
+  } else if (journeyCountdown) {
+    const dayLabel = Math.max(1, Math.ceil(distance / 86400000));
+    journeyCountdown.textContent = `Còn ${dayLabel} ngày nữa mở quà`;
+  }
 }
 
-document.querySelectorAll("[data-close-modal]").forEach((el) => {
-  el.addEventListener("click", closeModal);
+function seedTwinkles() {
+  const count = prefersReducedMotion ? 14 : 48;
+  const fragment = document.createDocumentFragment();
+
+  for (let index = 0; index < count; index += 1) {
+    const star = document.createElement("span");
+    star.style.left = `${Math.random() * 100}%`;
+    star.style.top = `${Math.random() * 100}%`;
+    star.style.setProperty("--delay", `${Math.random() * 5}s`);
+    star.style.setProperty("--speed", `${2.3 + Math.random() * 3.8}s`);
+    fragment.append(star);
+  }
+
+  twinkleField.append(fragment);
+}
+
+function resizeCanvas() {
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = Math.floor(window.innerWidth * ratio);
+  canvas.height = Math.floor(window.innerHeight * ratio);
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+}
+
+function burst(x = window.innerWidth / 2, y = window.innerHeight / 2, amount = 80) {
+  if (prefersReducedMotion) {
+    return;
+  }
+
+  const colors = ["#ffdc3f", "#64e7ff", "#ff7a59", "#a9ffcf", "#ffffff", "#8ea2ff"];
+
+  for (let index = 0; index < amount; index += 1) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2.2 + Math.random() * 6.2;
+    pieces.push({
+      x,
+      y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2.8,
+      size: 5 + Math.random() * 7,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      life: 72 + Math.random() * 42,
+      rotation: Math.random() * Math.PI,
+      spin: -0.12 + Math.random() * 0.24
+    });
+  }
+
+  if (!animationFrame) {
+    animationFrame = requestAnimationFrame(drawConfetti);
+  }
+}
+
+function drawConfetti() {
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+  for (let index = pieces.length - 1; index >= 0; index -= 1) {
+    const piece = pieces[index];
+    piece.x += piece.vx;
+    piece.y += piece.vy;
+    piece.vy += 0.13;
+    piece.rotation += piece.spin;
+    piece.life -= 1;
+
+    if (piece.life <= 0 || piece.y > window.innerHeight + 40) {
+      pieces.splice(index, 1);
+      continue;
+    }
+
+    ctx.save();
+    ctx.globalAlpha = Math.max(piece.life / 90, 0);
+    ctx.translate(piece.x, piece.y);
+    ctx.rotate(piece.rotation);
+    ctx.fillStyle = piece.color;
+    ctx.fillRect(-piece.size / 2, -piece.size / 2, piece.size, piece.size * 0.58);
+    ctx.restore();
+  }
+
+  if (pieces.length) {
+    animationFrame = requestAnimationFrame(drawConfetti);
+  } else {
+    animationFrame = null;
+  }
+}
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("show");
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => toast.classList.remove("show"), 1900);
+}
+
+function loadFirstPhoto(paths) {
+  return new Promise((resolve) => {
+    if (!paths || paths.length === 0) {
+      resolve(null);
+      return;
+    }
+
+    let index = 0;
+    const image = new Image();
+
+    image.onload = () => resolve(paths[index]);
+    image.onerror = () => {
+      index += 1;
+      if (index >= paths.length) {
+        resolve(null);
+        return;
+      }
+
+      image.src = paths[index];
+    };
+    image.src = paths[index];
+  });
+}
+
+function setPhotoSurface(element, src, icon) {
+  const fallbackImage = typeof icon === "string" && icon.startsWith("assets/");
+  const imageSource = src || (fallbackImage ? icon : "");
+
+  element.classList.toggle("has-photo", Boolean(imageSource));
+  element.classList.toggle("has-asset-icon", Boolean(!src && fallbackImage));
+  element.style.backgroundImage = imageSource ? `url("${imageSource}")` : "";
+  element.textContent = imageSource ? "" : icon || "";
+}
+
+function seedAmbientPlanets() {
+  if (!ambientPlanets || prefersReducedMotion) {
+    return;
+  }
+
+  const assets = [assetIcons.planetOne, assetIcons.planetTwo, assetIcons.planetThree, assetIcons.planetFour, assetIcons.star];
+  const positions = [
+    { left: 8, top: 18, size: 52, delay: -0.4, duration: 8.4 },
+    { left: 82, top: 22, size: 46, delay: -2.1, duration: 9.1 },
+    { left: 14, top: 58, size: 36, delay: -3.2, duration: 7.6 },
+    { left: 78, top: 68, size: 42, delay: -1.3, duration: 8.8 },
+    { left: 50, top: 42, size: 30, delay: -2.8, duration: 6.9 },
+    { left: 92, top: 48, size: 28, delay: -4.1, duration: 7.2 },
+    { left: 30, top: 82, size: 34, delay: -1.7, duration: 8.2 }
+  ];
+
+  const fragment = document.createDocumentFragment();
+  positions.forEach((item, index) => {
+    const planet = document.createElement("span");
+    planet.className = "ambient-planet";
+    planet.style.backgroundImage = `url("${assets[index % assets.length]}")`;
+    planet.style.left = `${item.left}%`;
+    planet.style.top = `${item.top}%`;
+    planet.style.width = `${item.size}px`;
+    planet.style.height = `${item.size}px`;
+    planet.style.setProperty("--float-delay", `${item.delay}s`);
+    planet.style.setProperty("--float-duration", `${item.duration}s`);
+    fragment.append(planet);
+  });
+
+  ambientPlanets.append(fragment);
+}
+
+function hydrateMemoryPhotos() {
+  document.querySelectorAll(".memory-orb").forEach(async (button) => {
+    const memory = memories[button.dataset.memory];
+    const photo = button.querySelector(".orb-photo");
+    const src = await loadFirstPhoto(memory.photos);
+    memory.activePhoto = src;
+    setPhotoSurface(photo, src, memory.icon);
+  });
+}
+
+async function hydrateFamilyPhoto() {
+  activeFamilyPhoto = await loadFirstPhoto(familyPhotos);
+  familyPhotoButton.classList.toggle("has-photo", Boolean(activeFamilyPhoto));
+  familyPhotoButton.style.setProperty("--family-photo", activeFamilyPhoto ? `url("${activeFamilyPhoto}")` : "");
+}
+
+function isBirthdayOpen() {
+  return BIRTHDAY_TIME.getTime() <= Date.now();
+}
+
+function openMemory(memoryKey) {
+  const memory = memories[memoryKey];
+
+  if (!memory) {
+    return;
+  }
+
+  activeMemory = memoryKey;
+  const locked = memory.future && !isBirthdayOpen();
+  const actionText = locked ? "Rắc pháo giấy chờ ngày mở quà" : "Rắc sao ký ức";
+
+  drawer.classList.toggle("is-locked", locked);
+  setPhotoSurface(drawerPhoto, memory.activePhoto, memory.icon);
+  drawerPhoto.style.setProperty("--photo-a", memory.colors[0]);
+  drawerPhoto.style.setProperty("--photo-b", memory.colors[1]);
+  drawerEyebrow.textContent = memory.eyebrow;
+  drawerTitle.textContent = memory.title;
+  drawerText.textContent = locked ? `${memory.text} ${journeyCountdown.textContent}.` : memory.openText || memory.text;
+  drawerActionLabel.textContent = actionText;
+
+  drawer.hidden = false;
+  requestAnimationFrame(() => drawer.classList.add("is-open"));
+
+  if (locked) {
+    burst(window.innerWidth / 2, window.innerHeight * 0.65, 65);
+  } else {
+    burst(window.innerWidth / 2, window.innerHeight * 0.68, 40);
+  }
+}
+
+function closeMemory() {
+  drawer.classList.remove("is-open");
+  window.setTimeout(() => {
+    if (!drawer.classList.contains("is-open")) {
+      drawer.hidden = true;
+    }
+  }, 260);
+}
+
+function openFamilyAlbum() {
+  activeMemory = "family";
+  drawer.classList.remove("is-locked");
+  setPhotoSurface(drawerPhoto, activeFamilyPhoto, "♡");
+  drawerPhoto.style.setProperty("--photo-a", "#ffe867");
+  drawerPhoto.style.setProperty("--photo-b", "#ff9ecb");
+  drawerEyebrow.textContent = "Ảnh gia đình";
+  drawerTitle.textContent = "Cả nhà bên Kem";
+  drawerText.textContent = activeFamilyPhoto
+    ? "Một khung hình thật ấm để giữ lại tình yêu của cả nhà trong chuyến bay tuổi thơ của Kem."
+    : "Bạn có thể đặt ảnh gia đình tên family.jpg, family.png hoặc family.webp vào thư mục assets/memories.";
+  drawerActionLabel.textContent = "Rắc tim yêu thương";
+
+  drawer.hidden = false;
+  requestAnimationFrame(() => drawer.classList.add("is-open"));
+  burst(window.innerWidth / 2, window.innerHeight * 0.68, 90);
+}
+
+function popWish(x, y) {
+  if (prefersReducedMotion) {
+    return;
+  }
+
+  const icons = [assetIcons.planetOne, assetIcons.planetTwo, assetIcons.planetThree, assetIcons.planetFour, assetIcons.star, assetIcons.star];
+  const pop = document.createElement("span");
+  const icon = icons[Math.floor(Math.random() * icons.length)];
+  pop.className = `tap-pop asset-pop${icon === assetIcons.star ? " is-star" : ""}`;
+  pop.style.backgroundImage = `url("${icon}")`;
+  pop.style.left = `${x}px`;
+  pop.style.top = `${y}px`;
+  document.body.append(pop);
+  window.setTimeout(() => pop.remove(), 900);
+}
+
+function setActiveNav(id) {
+  navLinks.forEach((link) => {
+    link.classList.toggle("active", link.getAttribute("href") === `#${id}`);
+  });
+}
+
+function initNavigationObserver() {
+  const sections = [...document.querySelectorAll(".screen")];
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+      if (visible) {
+        setActiveNav(visible.target.id);
+      }
+    },
+    {
+      threshold: [0.35, 0.55, 0.75]
+    }
+  );
+
+  sections.forEach((section) => observer.observe(section));
+}
+
+document.querySelector("#launchBtn").addEventListener("click", (event) => {
+  burst(event.clientX, event.clientY, 110);
+  showToast("Kem chuẩn bị cất cánh tới sinh nhật 4 tuổi!");
+  document.querySelector("#birthday").scrollIntoView({ behavior: "smooth" });
 });
 
-document.querySelector("[data-prev]").addEventListener("click", () => moveModal(-1));
-document.querySelector("[data-next]").addEventListener("click", () => moveModal(1));
+document.querySelector("#wishBtn").addEventListener("click", (event) => {
+  burst(event.clientX, event.clientY, 70);
+  showToast("Một điều ước xinh vừa bay lên bầu trời!");
+});
+
+document.querySelector("#partyBtn").addEventListener("click", (event) => {
+  burst(event.clientX, event.clientY, 150);
+  window.setTimeout(() => burst(window.innerWidth * 0.24, window.innerHeight * 0.28, 70), 170);
+  window.setTimeout(() => burst(window.innerWidth * 0.76, window.innerHeight * 0.25, 70), 320);
+  showToast("Chúc Kem tuổi 4 thật vui, khỏe và rực rỡ!");
+});
+
+document.querySelector("#magicToggle").addEventListener("click", (event) => {
+  const active = app.classList.toggle("extra-magic");
+  event.currentTarget.setAttribute("aria-pressed", String(active));
+  burst(event.clientX, event.clientY, active ? 90 : 34);
+  showToast(active ? "Bầu trời lấp lánh hơn rồi!" : "Lấp lánh dịu lại một chút.");
+});
+
+document.querySelectorAll(".memory-orb").forEach((button) => {
+  button.addEventListener("click", (event) => {
+    openMemory(event.currentTarget.dataset.memory);
+  });
+});
+
+document.querySelector("#drawerClose").addEventListener("click", closeMemory);
+document.querySelector(".drawer-backdrop").addEventListener("click", closeMemory);
+familyPhotoButton.addEventListener("click", openFamilyAlbum);
+
+drawerAction.addEventListener("click", (event) => {
+  const locked = activeMemory === "four" && !isBirthdayOpen();
+  burst(event.clientX, event.clientY, locked ? 120 : 80);
+  showToast(activeMemory === "family" ? "Một tim yêu thương vừa bay lên!" : locked ? "Kem đang bay tới cổng sinh nhật tuổi 4!" : "Một ký ức xinh vừa sáng lên!");
+});
+
+document.addEventListener("pointerdown", (event) => {
+  if (event.target.closest("button, a, .drawer-panel")) {
+    return;
+  }
+
+  popWish(event.clientX, event.clientY);
+});
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && modal.classList.contains("is-open")) {
-    closeModal();
+  if (event.key === "Escape" && !drawer.hidden) {
+    closeMemory();
   }
 });
 
-renderTimeline();
+window.addEventListener("resize", resizeCanvas);
+
+resizeCanvas();
+seedTwinkles();
+seedAmbientPlanets();
+hydrateMemoryPhotos();
+hydrateFamilyPhoto();
 updateCountdown();
-setInterval(updateCountdown, 60000);
+window.setInterval(updateCountdown, 1000);
+initNavigationObserver();
