@@ -19,6 +19,7 @@
           <p class="brand">Nhật ký lớn lên của Kem</p>
           <button class="magic-toggle" id="magicToggle" type="button" aria-label="Bật thêm lấp lánh" aria-pressed="false">
             <span class="soft-icon icon-sparkle" aria-hidden="true"></span>
+            <span>Thắp sáng vũ trụ</span>
           </button>
         </header>
 
@@ -33,20 +34,17 @@
           </p>
         </div>
 
-        <div class="quick-actions" aria-label="Hành động nhanh">
-          <button class="btn btn-primary" id="launchBtn" type="button">
-            <span class="soft-icon icon-rocket" aria-hidden="true"></span>
-            Phóng tới sinh nhật
-          </button>
-          <button class="btn btn-soft" id="wishBtn" type="button">
-            <span class="soft-icon icon-wish" aria-hidden="true"></span>
-            Rắc điều ước
-          </button>
-        </div>
-
         <div class="hero-filler" aria-hidden="true"></div>
 
         <section class="countdown-card" aria-labelledby="countdownTitle">
+          <div class="countdown-party" aria-hidden="true">
+            <span class="party-light party-light-one"></span>
+            <span class="party-light party-light-two"></span>
+            <span class="party-light party-light-three"></span>
+            <span class="party-light party-light-four"></span>
+            <span class="party-balloon party-balloon-one"></span>
+            <span class="party-balloon party-balloon-two"></span>
+          </div>
           <div class="countdown-comets" aria-hidden="true">
             <span></span>
             <span></span>
@@ -57,33 +55,44 @@
             Đếm ngược đến sinh nhật
             <span class="soft-icon icon-sparkle" aria-hidden="true"></span>
           </h2>
-          <div class="countdown-grid" id="countdown" aria-live="polite">
-            <div class="time-box">
-              <strong data-unit="days">00</strong>
-              <span>Ngày</span>
+          <div class="countdown-content">
+            <div class="birthday-cake" aria-hidden="true">
+              <span class="candle candle-one"></span>
+              <span class="candle candle-two"></span>
+              <span class="cake-top"></span>
+              <span class="cake-body"></span>
+              <span class="cake-plate"></span>
             </div>
-            <div class="dot" aria-hidden="true"></div>
-            <div class="time-box">
-              <strong data-unit="hours">00</strong>
-              <span>Giờ</span>
-            </div>
-            <div class="dot" aria-hidden="true"></div>
-            <div class="time-box">
-              <strong data-unit="minutes">00</strong>
-              <span>Phút</span>
-            </div>
-            <div class="dot" aria-hidden="true"></div>
-            <div class="time-box">
-              <strong data-unit="seconds">00</strong>
-              <span>Giây</span>
+            <div class="countdown-grid" id="countdown" aria-live="polite">
+              <div class="time-box">
+                <strong data-unit="days">00</strong>
+                <span>Ngày</span>
+              </div>
+              <div class="dot" aria-hidden="true"></div>
+              <div class="time-box">
+                <strong data-unit="hours">00</strong>
+                <span>Giờ</span>
+              </div>
+              <div class="dot" aria-hidden="true"></div>
+              <div class="time-box">
+                <strong data-unit="minutes">00</strong>
+                <span>Phút</span>
+              </div>
+              <div class="dot" aria-hidden="true"></div>
+              <div class="time-box">
+                <strong data-unit="seconds">00</strong>
+                <span>Giây</span>
+              </div>
             </div>
           </div>
         </section>
 
         <div class="floating-goodies" aria-hidden="true">
-          <span class="floaty floaty-one soft-icon icon-balloon"></span>
-          <span class="floaty floaty-two soft-icon icon-star"></span>
-          <span class="floaty floaty-three soft-icon icon-cake"></span>
+          <img class="floaty floaty-one" src="assets/icons/1.png" alt="" loading="lazy" />
+          <img class="floaty floaty-two" src="assets/icons/2.png" alt="" loading="lazy" />
+          <img class="floaty floaty-three" src="assets/icons/3.png" alt="" loading="lazy" />
+          <img class="floaty floaty-four" src="assets/icons/4.png" alt="" loading="lazy" />
+          <img class="floaty floaty-five" src="assets/icons/5.png" alt="" loading="lazy" />
         </div>
       </section>
 
@@ -92,14 +101,31 @@
         <h2 class="section-title">Đường bay lớn lên</h2>
         <p class="journey-lead">Chạm vào từng trạm để mở album nhỏ của bé.</p>
         <ol class="flight-map" aria-label="Các mốc lớn lên của Kem">
+          <svg class="flight-route" viewBox="0 0 360 720" aria-hidden="true" preserveAspectRatio="none">
+            <path class="route-shadow" d="M300 44 C218 94 140 116 70 172 C12 220 118 268 70 340 C28 410 130 462 78 520 C24 582 196 608 306 654" />
+            <path class="route-line" d="M300 44 C218 94 140 116 70 172 C12 220 118 268 70 340 C28 410 130 462 78 520 C24 582 196 608 306 654" />
+          </svg>
+          <span class="route-end" aria-hidden="true"></span>
+          <span class="route-rocket" aria-hidden="true">
+            <span class="rocket-window"></span>
+            <span class="rocket-flame"></span>
+          </span>
+          <div class="journey-planets" aria-hidden="true">
+            <img class="journey-planet journey-planet-one" src="assets/icons/1.png" alt="" loading="lazy" />
+            <img class="journey-planet journey-planet-two" src="assets/icons/2.png" alt="" loading="lazy" />
+            <img class="journey-planet journey-planet-three" src="assets/icons/3.png" alt="" loading="lazy" />
+            <img class="journey-planet journey-planet-four" src="assets/icons/5.png" alt="" loading="lazy" />
+            <img class="journey-planet journey-planet-five" src="assets/icons/4.png" alt="" loading="lazy" />
+            <img class="journey-planet journey-planet-six" src="assets/icons/5.png" alt="" loading="lazy" />
+          </div>
           <li class="flight-stop is-left">
             <button class="memory-orb" type="button" data-memory="birth" aria-label="Mở ký ức Chào đời">
               <span class="orb-photo" aria-hidden="true"></span>
             </button>
             <div class="flight-copy">
-              <span>Trạm đầu tiên</span>
+              <span>Trạm khởi hành</span>
               <strong>Chào đời</strong>
-              <small>Kem đáp xuống Trái Đất</small>
+              <small>Ngày câu chuyện của Kem bắt đầu</small>
             </div>
           </li>
           <li class="flight-stop is-right">
@@ -107,19 +133,19 @@
               <span class="orb-photo" aria-hidden="true"></span>
             </button>
             <div class="flight-copy">
-              <span>Mặt trăng nhỏ</span>
+              <span>Trạm đầu đời</span>
               <strong>1 tuổi</strong>
-              <small>Chạm ngõ thế giới</small>
+              <small>Những bước nhỏ mở ra thế giới</small>
             </div>
           </li>
-          <li class="flight-stop is-left">
+          <li class="flight-stop is-right">
             <button class="memory-orb" type="button" data-memory="two" aria-label="Mở ký ức 2 tuổi">
               <span class="orb-photo" aria-hidden="true"></span>
             </button>
             <div class="flight-copy">
-              <span>Hành tinh cam</span>
+              <span>Trạm yêu thương</span>
               <strong>2 tuổi</strong>
-              <small>Cười vang cả nhà</small>
+              <small>Nụ cười vàng của cả nhà</small>
             </div>
           </li>
           <li class="flight-stop is-right">
@@ -127,9 +153,9 @@
               <span class="orb-photo" aria-hidden="true"></span>
             </button>
             <div class="flight-copy">
-              <span>Trái Đất xanh</span>
+              <span>Trạm khám phá</span>
               <strong>3 tuổi</strong>
-              <small>Hỏi cả bầu trời</small>
+              <small>Lớn lên giữa ngàn điều mới</small>
             </div>
           </li>
           <li class="flight-stop is-left is-future">
@@ -137,9 +163,9 @@
               <span class="orb-photo" aria-hidden="true"></span>
             </button>
             <div class="flight-copy">
-              <span>Điểm đến chờ mở</span>
+              <span>Trạm sinh nhật</span>
               <strong>4 tuổi</strong>
-              <small id="journeyCountdown">Sắp tới sinh nhật rồi</small>
+              <small id="journeyCountdown">Một chương mới sắp mở ra</small>
             </div>
           </li>
         </ol>
@@ -148,29 +174,28 @@
       <section class="screen moments" id="moments" data-nav="Khoảnh khắc">
         <div class="section-kicker">Album yêu thương</div>
         <h2 class="section-title">Khoảnh khắc đáng nhớ</h2>
-        <div class="family-album">
-          <button class="family-photo" id="familyPhoto" type="button" aria-label="Mở ảnh gia đình">
-            <span class="soft-icon icon-photo" aria-hidden="true"></span>
-            <strong>Ảnh gia đình</strong>
-            <small>Đặt ảnh vào assets/memories/family.jpg</small>
-          </button>
-          <div class="memory-notes" aria-label="Những khoảnh khắc nhỏ">
-            <article class="memory-note">
-              <span class="soft-icon icon-smile" aria-hidden="true"></span>
-              <strong>Nụ cười tỏa nắng</strong>
-            </article>
-            <article class="memory-note">
-              <span class="soft-icon icon-puzzle" aria-hidden="true"></span>
-              <strong>Ham học hỏi</strong>
-            </article>
-            <article class="memory-note">
-              <span class="soft-icon icon-sun" aria-hidden="true"></span>
-              <strong>Chuyến đi đầu đời</strong>
-            </article>
-            <article class="memory-note">
-              <span class="soft-icon icon-gift" aria-hidden="true"></span>
-              <strong>Điều ước tuổi 4</strong>
-            </article>
+        <div class="family-album mini-album" id="miniAlbum" aria-label="Album ảnh nhỏ của Kem">
+          <div class="album-stage">
+            <button class="album-nav album-prev" id="albumPrev" type="button" aria-label="Ảnh trước">
+              <span aria-hidden="true">‹</span>
+            </button>
+            <figure class="album-page" id="albumPage">
+              <div class="album-photo" id="albumPhoto" aria-hidden="true"></div>
+              <figcaption>
+                <span id="albumKicker">Trang 1</span>
+                <strong id="albumTitle">Ảnh gia đình</strong>
+                <small id="albumCaption">Cả nhà cùng bay trong vũ trụ tuổi thơ của Kem.</small>
+              </figcaption>
+            </figure>
+            <button class="album-nav album-next" id="albumNext" type="button" aria-label="Ảnh tiếp theo">
+              <span aria-hidden="true">›</span>
+            </button>
+          </div>
+          <div class="album-dots" id="albumDots" aria-label="Chọn trang album"></div>
+          <div class="album-thumbs" id="albumThumbs" aria-label="Ảnh thu nhỏ trong album"></div>
+          <div class="album-hint">
+            <span class="soft-icon icon-sparkle" aria-hidden="true"></span>
+            <span>Lật từng trang ký ức nhỏ của Kem</span>
           </div>
         </div>
       </section>
@@ -188,25 +213,6 @@
           </button>
         </div>
       </section>
-
-      <nav class="bottom-nav" aria-label="Điều hướng trang">
-        <a href="#home" class="active">
-          <span class="soft-icon icon-home" aria-hidden="true"></span>
-          Đầu trang
-        </a>
-        <a href="#journey">
-          <span class="soft-icon icon-planet" aria-hidden="true"></span>
-          Hành trình
-        </a>
-        <a href="#moments">
-          <span class="soft-icon icon-photo" aria-hidden="true"></span>
-          Khoảnh khắc
-        </a>
-        <a href="#birthday">
-          <span class="soft-icon icon-cake" aria-hidden="true"></span>
-          Sinh nhật
-        </a>
-      </nav>
 
       <div class="memory-drawer" id="memoryDrawer" hidden>
         <button class="drawer-backdrop" type="button" aria-label="Đóng album ký ức"></button>

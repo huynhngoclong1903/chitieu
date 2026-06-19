@@ -14,7 +14,15 @@ const drawerTitle = document.querySelector("#drawerTitle");
 const drawerText = document.querySelector("#drawerText");
 const drawerAction = document.querySelector("#drawerAction");
 const drawerActionLabel = drawerAction.querySelector(".action-label");
-const familyPhotoButton = document.querySelector("#familyPhoto");
+const albumPage = document.querySelector("#albumPage");
+const albumPhoto = document.querySelector("#albumPhoto");
+const albumKicker = document.querySelector("#albumKicker");
+const albumTitle = document.querySelector("#albumTitle");
+const albumCaption = document.querySelector("#albumCaption");
+const albumPrev = document.querySelector("#albumPrev");
+const albumNext = document.querySelector("#albumNext");
+const albumDots = document.querySelector("#albumDots");
+const albumThumbs = document.querySelector("#albumThumbs");
 const canvas = document.querySelector("#confettiCanvas");
 const ctx = canvas.getContext("2d");
 const pieces = [];
@@ -22,24 +30,71 @@ const navLinks = [...document.querySelectorAll(".bottom-nav a")];
 let animationFrame = null;
 let toastTimer = null;
 let activeMemory = null;
-let activeFamilyPhoto = null;
 let previousCountdown = {};
+let lastPopAt = 0;
+let activeAlbumIndex = 0;
 
 const assetIcons = {
-  planetOne: "assets/1.png",
-  planetTwo: "assets/2.png",
-  planetThree: "assets/3.png",
-  planetFour: "assets/4.png",
-  star: "assets/5.png"
+  planetOne: "assets/icons/1.png",
+  planetTwo: "assets/icons/2.png",
+  planetThree: "assets/icons/3.png",
+  planetFour: "assets/icons/4.png",
+  star: "assets/icons/5.png"
+};
+const memoryEffects = {
+  birth: [assetIcons.star, assetIcons.star, assetIcons.planetOne],
+  one: [assetIcons.planetOne, assetIcons.star, assetIcons.planetThree],
+  two: [assetIcons.planetTwo, assetIcons.planetFour, assetIcons.star],
+  three: [assetIcons.planetThree, assetIcons.planetOne, assetIcons.star],
+  four: [assetIcons.planetFour, assetIcons.star, assetIcons.star]
 };
 const familyPhotos = ["assets/memories/family.jpg", "assets/memories/family.png", "assets/memories/family.webp"];
+
+const albumPages = [
+  {
+    kicker: "Trang gia đình",
+    title: "Cả nhà bên Kem",
+    caption: "Một khung hình ấm áp để giữ lại tình yêu của cả nhà.",
+    photos: familyPhotos
+  },
+  {
+    kicker: "Trang chào đời",
+    title: "Chào đời",
+    caption: "Ngày Kem đáp xuống Trái Đất, cả nhà có thêm một vì sao nhỏ.",
+    photos: ["assets/memories/chao-doi.jpg", "assets/memories/chao-doi.png", "assets/memories/chao-doi.webp"]
+  },
+  {
+    kicker: "Trang đầu đời",
+    title: "Mắt tròn khám phá",
+    caption: "Những bước đầu tiên và nụ cười làm cả nhà tan chảy.",
+    photos: ["assets/memories/1-tuoi.jpg", "assets/memories/1-tuoi.png", "assets/memories/1-tuoi.webp"]
+  },
+  {
+    kicker: "Trang yêu thương",
+    title: "Cười vang cả nhà",
+    caption: "Những trò vui nhỏ xíu làm ngày nào cũng rộn ràng.",
+    photos: ["assets/memories/2-tuoi.jpg", "assets/memories/2-tuoi.png", "assets/memories/2-tuoi.webp"]
+  },
+  {
+    kicker: "Trang khám phá",
+    title: "Hỏi cả bầu trời",
+    caption: "Tuổi tò mò, chạy nhảy và gom thêm thật nhiều ký ức xinh.",
+    photos: ["assets/memories/3-tuoi.jpg", "assets/memories/3-tuoi.png", "assets/memories/3-tuoi.webp"]
+  },
+  {
+    kicker: "Trang sinh nhật",
+    title: "Một trang sinh nhật",
+    caption: "Trang nhỏ chờ thêm những tấm hình mới của Kem.",
+    photos: ["assets/memories/photo-03082024-alt.jpg", "assets/memories/photo-03022026.jpg", "assets/memories/4-tuoi.jpg"]
+  }
+];
 
 const memories = {
   birth: {
     eyebrow: "Trạm đầu tiên",
     title: "Chào đời",
     icon: assetIcons.star,
-    photos: ["https://d3efbsql7dignm.cloudfront.net/Longtest/chao-doi.jpg"],
+    photos: ["assets/memories/chao-doi.jpg", "assets/memories/chao-doi.png", "assets/memories/chao-doi.webp"],
     text: "Ngày Kem đáp xuống Trái Đất, cả nhà có thêm một vì sao nhỏ để yêu thương.",
     colors: ["#ffe867", "#ff7a59"]
   },
@@ -47,7 +102,7 @@ const memories = {
     eyebrow: "Mặt trăng nhỏ",
     title: "1 tuổi",
     icon: assetIcons.planetOne,
-    photos: ["https://d3efbsql7dignm.cloudfront.net/Longtest/1-tuoi.jpg"],
+    photos: ["assets/memories/1-tuoi.jpg", "assets/memories/1-tuoi.png", "assets/memories/1-tuoi.webp"],
     text: "Những bước khám phá đầu tiên, đôi mắt tròn xoe và nụ cười làm cả nhà tan chảy.",
     colors: ["#f7f7ff", "#7fc7ff"]
   },
@@ -55,7 +110,7 @@ const memories = {
     eyebrow: "Hành tinh cam",
     title: "2 tuổi",
     icon: assetIcons.planetTwo,
-    photos: ["https://d3efbsql7dignm.cloudfront.net/Longtest/2-tuoi.jpg"],
+    photos: ["assets/memories/2-tuoi.jpg", "assets/memories/2-tuoi.png", "assets/memories/2-tuoi.webp"],
     text: "Kem bắt đầu có thật nhiều trò vui, cười vang và làm mọi ngày trong nhà rộn ràng hơn.",
     colors: ["#ffb453", "#ff6f59"]
   },
@@ -63,7 +118,7 @@ const memories = {
     eyebrow: "Trái Đất xanh",
     title: "3 tuổi",
     icon: assetIcons.planetThree,
-    photos: ["https://d3efbsql7dignm.cloudfront.net/Longtest/3-tuoi.jpg"],
+    photos: ["assets/memories/3-tuoi.jpg", "assets/memories/3-tuoi.png", "assets/memories/3-tuoi.webp"],
     text: "Một tuổi đầy câu hỏi dễ thương, chạy nhảy nhiều hơn và tò mò về cả bầu trời.",
     colors: ["#64e7ff", "#75d66f"]
   },
@@ -111,13 +166,12 @@ function updateCountdown() {
       journeyCountdown.textContent = "Cổng sinh nhật đã mở!";
     }
   } else if (journeyCountdown) {
-    const dayLabel = Math.max(1, Math.ceil(distance / 86400000));
-    journeyCountdown.textContent = `Còn ${dayLabel} ngày nữa mở quà`;
+    journeyCountdown.textContent = "Một chương mới sắp mở ra";
   }
 }
 
 function seedTwinkles() {
-  const count = prefersReducedMotion ? 14 : 48;
+  const count = prefersReducedMotion ? 10 : 24;
   const fragment = document.createDocumentFragment();
 
   for (let index = 0; index < count; index += 1) {
@@ -133,7 +187,7 @@ function seedTwinkles() {
 }
 
 function resizeCanvas() {
-  const ratio = window.devicePixelRatio || 1;
+  const ratio = Math.min(window.devicePixelRatio || 1, 1.5);
   canvas.width = Math.floor(window.innerWidth * ratio);
   canvas.height = Math.floor(window.innerHeight * ratio);
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -247,13 +301,11 @@ function seedAmbientPlanets() {
 
   const assets = [assetIcons.planetOne, assetIcons.planetTwo, assetIcons.planetThree, assetIcons.planetFour, assetIcons.star];
   const positions = [
-    { left: 8, top: 18, size: 52, delay: -0.4, duration: 8.4 },
-    { left: 82, top: 22, size: 46, delay: -2.1, duration: 9.1 },
-    { left: 14, top: 58, size: 36, delay: -3.2, duration: 7.6 },
-    { left: 78, top: 68, size: 42, delay: -1.3, duration: 8.8 },
-    { left: 50, top: 42, size: 30, delay: -2.8, duration: 6.9 },
-    { left: 92, top: 48, size: 28, delay: -4.1, duration: 7.2 },
-    { left: 30, top: 82, size: 34, delay: -1.7, duration: 8.2 }
+    { left: 8, top: 20, size: 44, delay: -0.4, duration: 8.4 },
+    { left: 82, top: 24, size: 40, delay: -2.1, duration: 9.1 },
+    { left: 14, top: 58, size: 34, delay: -3.2, duration: 7.6 },
+    { left: 78, top: 69, size: 38, delay: -1.3, duration: 8.8 },
+    { left: 50, top: 43, size: 28, delay: -2.8, duration: 6.9 }
   ];
 
   const fragment = document.createDocumentFragment();
@@ -283,14 +335,115 @@ function hydrateMemoryPhotos() {
   });
 }
 
-async function hydrateFamilyPhoto() {
-  activeFamilyPhoto = await loadFirstPhoto(familyPhotos);
-  familyPhotoButton.classList.toggle("has-photo", Boolean(activeFamilyPhoto));
-  familyPhotoButton.style.setProperty("--family-photo", activeFamilyPhoto ? `url("${activeFamilyPhoto}")` : "");
+function renderAlbumPage(direction = "next") {
+  const page = albumPages[activeAlbumIndex];
+  const photo = page.activePhoto;
+
+  albumKicker.textContent = page.kicker;
+  albumTitle.textContent = page.title;
+  albumCaption.textContent = page.caption;
+  albumPhoto.classList.toggle("has-photo", Boolean(photo));
+  albumPhoto.style.setProperty("--album-photo", photo ? `url("${photo}")` : "");
+
+  albumPage.classList.remove("is-turning-next", "is-turning-prev");
+  void albumPage.offsetWidth;
+  albumPage.classList.add(direction === "prev" ? "is-turning-prev" : "is-turning-next");
+
+  albumDots.querySelectorAll("button").forEach((button, index) => {
+    button.classList.toggle("is-active", index === activeAlbumIndex);
+    button.setAttribute("aria-current", index === activeAlbumIndex ? "true" : "false");
+  });
+  albumThumbs.querySelectorAll("button").forEach((button, index) => {
+    button.classList.toggle("is-active", index === activeAlbumIndex);
+    button.setAttribute("aria-current", index === activeAlbumIndex ? "true" : "false");
+  });
+}
+
+function goAlbumPage(step) {
+  activeAlbumIndex = (activeAlbumIndex + step + albumPages.length) % albumPages.length;
+  renderAlbumPage(step < 0 ? "prev" : "next");
+  if (!prefersReducedMotion) {
+    burst(window.innerWidth / 2, window.innerHeight * 0.56, 16);
+  }
+}
+
+async function hydrateMiniAlbum() {
+  albumDots.innerHTML = "";
+  albumThumbs.innerHTML = "";
+  albumPages.forEach((page, index) => {
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.setAttribute("aria-label", `Mở trang album ${index + 1}`);
+    dot.addEventListener("click", () => {
+      const direction = index < activeAlbumIndex ? "prev" : "next";
+      activeAlbumIndex = index;
+      renderAlbumPage(direction);
+    });
+    albumDots.append(dot);
+
+    const thumb = document.createElement("button");
+    thumb.type = "button";
+    thumb.setAttribute("aria-label", `Xem ảnh album ${index + 1}`);
+    thumb.addEventListener("click", () => {
+      const direction = index < activeAlbumIndex ? "prev" : "next";
+      activeAlbumIndex = index;
+      renderAlbumPage(direction);
+    });
+    albumThumbs.append(thumb);
+  });
+
+  await Promise.all(albumPages.map(async (page) => {
+    page.activePhoto = await loadFirstPhoto(page.photos);
+    if (page.activePhoto) {
+      const image = new Image();
+      image.src = page.activePhoto;
+    }
+  }));
+
+  albumThumbs.querySelectorAll("button").forEach((button, index) => {
+    const photo = albumPages[index].activePhoto;
+    if (photo) {
+      button.style.backgroundImage = `linear-gradient(180deg, rgba(4, 10, 40, 0), rgba(4, 10, 40, 0.18)), url("${photo}")`;
+    }
+  });
+
+  renderAlbumPage("next");
 }
 
 function isBirthdayOpen() {
   return BIRTHDAY_TIME.getTime() <= Date.now();
+}
+
+function celebrateJourneyStop(button, memoryKey) {
+  if (prefersReducedMotion) {
+    return;
+  }
+
+  const stop = button.closest(".flight-stop");
+  if (!stop) {
+    return;
+  }
+
+  const icons = memoryEffects[memoryKey] || [assetIcons.star];
+  stop.classList.add("is-active");
+  window.setTimeout(() => stop.classList.remove("is-active"), 820);
+
+  for (let index = 0; index < 8; index += 1) {
+    const spark = document.createElement("span");
+    const angle = (Math.PI * 2 * index) / 8;
+    const distance = 42 + Math.random() * 24;
+    const icon = icons[index % icons.length];
+
+    spark.className = "stop-spark";
+    spark.style.setProperty("--spark-image", `url("${icon}")`);
+    spark.style.setProperty("--spark-x", `${Math.cos(angle) * distance}px`);
+    spark.style.setProperty("--spark-y", `${Math.sin(angle) * distance}px`);
+    spark.style.setProperty("--spark-r", `${-28 + Math.random() * 56}deg`);
+    spark.style.left = `${button.offsetLeft + button.offsetWidth / 2}px`;
+    spark.style.top = `${button.offsetTop + button.offsetHeight / 2}px`;
+    stop.append(spark);
+    window.setTimeout(() => spark.remove(), 920);
+  }
 }
 
 function openMemory(memoryKey) {
@@ -317,9 +470,9 @@ function openMemory(memoryKey) {
   requestAnimationFrame(() => drawer.classList.add("is-open"));
 
   if (locked) {
-    burst(window.innerWidth / 2, window.innerHeight * 0.65, 65);
+    burst(window.innerWidth / 2, window.innerHeight * 0.65, 38);
   } else {
-    burst(window.innerWidth / 2, window.innerHeight * 0.68, 40);
+    burst(window.innerWidth / 2, window.innerHeight * 0.68, 26);
   }
 }
 
@@ -347,13 +500,18 @@ function openFamilyAlbum() {
 
   drawer.hidden = false;
   requestAnimationFrame(() => drawer.classList.add("is-open"));
-  burst(window.innerWidth / 2, window.innerHeight * 0.68, 90);
+  burst(window.innerWidth / 2, window.innerHeight * 0.68, 48);
 }
 
 function popWish(x, y) {
   if (prefersReducedMotion) {
     return;
   }
+  const now = Date.now();
+  if (now - lastPopAt < 160) {
+    return;
+  }
+  lastPopAt = now;
 
   const icons = [assetIcons.planetOne, assetIcons.planetTwo, assetIcons.planetThree, assetIcons.planetFour, assetIcons.star, assetIcons.star];
   const pop = document.createElement("span");
@@ -392,48 +550,39 @@ function initNavigationObserver() {
   sections.forEach((section) => observer.observe(section));
 }
 
-document.querySelector("#launchBtn").addEventListener("click", (event) => {
-  burst(event.clientX, event.clientY, 110);
-  showToast("Kem chuẩn bị cất cánh tới sinh nhật 4 tuổi!");
-  document.querySelector("#birthday").scrollIntoView({ behavior: "smooth" });
-});
-
-document.querySelector("#wishBtn").addEventListener("click", (event) => {
-  burst(event.clientX, event.clientY, 70);
-  showToast("Một điều ước xinh vừa bay lên bầu trời!");
-});
-
 document.querySelector("#partyBtn").addEventListener("click", (event) => {
-  burst(event.clientX, event.clientY, 150);
-  window.setTimeout(() => burst(window.innerWidth * 0.24, window.innerHeight * 0.28, 70), 170);
-  window.setTimeout(() => burst(window.innerWidth * 0.76, window.innerHeight * 0.25, 70), 320);
+  burst(event.clientX, event.clientY, 72);
+  window.setTimeout(() => burst(window.innerWidth * 0.24, window.innerHeight * 0.28, 34), 170);
+  window.setTimeout(() => burst(window.innerWidth * 0.76, window.innerHeight * 0.25, 34), 320);
   showToast("Chúc Kem tuổi 4 thật vui, khỏe và rực rỡ!");
 });
 
 document.querySelector("#magicToggle").addEventListener("click", (event) => {
   const active = app.classList.toggle("extra-magic");
   event.currentTarget.setAttribute("aria-pressed", String(active));
-  burst(event.clientX, event.clientY, active ? 90 : 34);
-  showToast(active ? "Bầu trời lấp lánh hơn rồi!" : "Lấp lánh dịu lại một chút.");
+  burst(event.clientX, event.clientY, active ? 48 : 22);
+  showToast(active ? "Vũ trụ của Kem sáng bừng rồi!" : "Vũ trụ dịu lại một chút.");
 });
 
 document.querySelectorAll(".memory-orb").forEach((button) => {
   button.addEventListener("click", (event) => {
+    celebrateJourneyStop(event.currentTarget, event.currentTarget.dataset.memory);
     openMemory(event.currentTarget.dataset.memory);
   });
 });
 
 document.querySelector("#drawerClose").addEventListener("click", closeMemory);
 document.querySelector(".drawer-backdrop").addEventListener("click", closeMemory);
-familyPhotoButton.addEventListener("click", openFamilyAlbum);
+albumPrev.addEventListener("click", () => goAlbumPage(-1));
+albumNext.addEventListener("click", () => goAlbumPage(1));
 
 drawerAction.addEventListener("click", (event) => {
   const locked = activeMemory === "four" && !isBirthdayOpen();
-  burst(event.clientX, event.clientY, locked ? 120 : 80);
+  burst(event.clientX, event.clientY, locked ? 58 : 42);
   showToast(activeMemory === "family" ? "Một tim yêu thương vừa bay lên!" : locked ? "Kem đang bay tới cổng sinh nhật tuổi 4!" : "Một ký ức xinh vừa sáng lên!");
 });
 
-document.addEventListener("pointerdown", (event) => {
+app.addEventListener("pointerdown", (event) => {
   if (event.target.closest("button, a, .drawer-panel")) {
     return;
   }
@@ -453,7 +602,7 @@ resizeCanvas();
 seedTwinkles();
 seedAmbientPlanets();
 hydrateMemoryPhotos();
-hydrateFamilyPhoto();
+hydrateMiniAlbum();
 updateCountdown();
 window.setInterval(updateCountdown, 1000);
 initNavigationObserver();
